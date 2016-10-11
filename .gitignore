@@ -42,3 +42,6 @@ captures/
 # SO dependant files
 *~
 .DS_Store
+
+# Private files
+private.properties

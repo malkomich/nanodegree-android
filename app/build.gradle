@@ -1,5 +1,19 @@
 apply plugin: 'com.android.application'
 
+// Load private properties from file
+def privatePropertiesFile = rootProject.file("private.properties")
+def privateProperties = new Properties()
+def tmbdApiKey;
+if (privatePropertiesFile.canRead()) {
+    privateProperties.load(new FileInputStream(privatePropertiesFile))
+
+    if (privateProperties.containsKey('tmbdApiKey')) {
+        tmbdApiKey = privateProperties['tmbdApiKey']
+    }
+}
+
+
+
 android {
     compileSdkVersion 24
     buildToolsVersion "24.0.3"
@@ -10,11 +24,16 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            resValue "string", "tmbdApiKey", tmbdApiKey
+        }
+        debug {
+            resValue "string", "tmbdApiKey", tmbdApiKey
         }
     }
 }
@@ -24,6 +43,14 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:24.2.1'
+    // Test libraries
+    // App compatibility library
+    compile "com.android.support:appcompat-v7:${supportLibraryVersion}"
+    compile "com.android.support:design:${supportLibraryVersion}"
+    // Image loading & caching
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.android.support:support-v4:24.2.1'
+    compile 'com.android.support:support-vector-drawable:24.2.1'
     testCompile 'junit:junit:4.12'
+    testCompile 'org.json:json:20140107'
 }

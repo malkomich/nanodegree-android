@@ -10,4 +10,9 @@
 
     <string name="menu_title">My Nanodegree Apps!</string>
     <string name="button_toast">This button will launch \"%1$s\" app!</string>
+    <string name="title_activity_popular_movies">Popular Movies</string>
+
+    <string name="action_sort_popularity">Sort by popularity</string>
+    <string name="action_sort_rated">Sort by rating</string>
+
 </resources>

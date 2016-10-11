@@ -1,10 +1,16 @@
-package com.github.malkomich.nanodegree;
+package com.github.malkomich.nanodegree.ui.activity;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import com.github.malkomich.nanodegree.R;
+
+/**
+ * Main menu activity.
+ */
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -14,11 +20,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onButtonClick(View view) {
-        String appName;
+        String appName = null;
 
         switch (view.getId()) {
             case R.id.button_app_1:
-                appName = getString(R.string.button_app_1).toLowerCase();
+                Intent intent = new Intent(this, PopularMoviesActivity.class);
+                startActivity(intent);
                 break;
             case R.id.button_app_2:
                 appName = getString(R.string.button_app_2).toLowerCase();
@@ -36,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
                 appName = getString(R.string.button_app_6).toLowerCase();
                 break;
             default:
-                appName = null;
                 break;
         }
 

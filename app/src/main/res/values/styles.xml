@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -6,20 +6,36 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="toolbarStyle">@style/AppTheme.AppBarOverlay</item>
     </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="background">?attr/colorPrimaryDark</item>
+        <item name="logo">@mipmap/ic_launcher</item>
+        <item name="titleMarginStart">@dimen/margin_tiny</item>
+        <item name="android:textSize">@dimen/text_size_large</item>
+    </style>
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
     <style name="MenuButtonTheme" parent="Widget.AppCompat.Button.Colored">
         <item name="android:background">@drawable/button_background</item>
         <item name="android:layout_width">@dimen/button_width</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">@dimen/margin_medium</item>
+        <item name="android:layout_marginTop">@dimen/margin_small</item>
+        <item name="android:textSize">@dimen/text_size_default</item>
+        <item name="android:padding">@dimen/margin_tiny</item>
         <item name="android:textStyle">bold</item>
         <item name="android:onClick">"onButtonClick"</item>
-        <item name="buttonColor">@color/colorAccent</item>
     </style>
 
-    <style name="MenuButtonTheme.Focused">
-        <item name="buttonColor">@color/colorControlHighlight</item>
+    <style name="MovieDetailTheme">
+        <item name="android:color">@android:color/white</item>
     </style>
 
 </resources>
