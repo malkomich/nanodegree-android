@@ -1,12 +1,11 @@
 package com.github.malkomich.nanodegree.domain;
 
-import android.util.Log;
+import android.net.Uri;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,10 +41,10 @@ public class VideoResults {
         return videos;
     }
 
-    public URL getTrailerLink() {
+    public Uri getTrailerLink() {
         for(Video video : videos) {
             if(Video.VideoType.TRAILER.equals(video.getType()) && Video.SITE_YOUTUBE.equals(video.getSite())) {
-                return video.getURL();
+                return video.getUri();
             }
         }
         return null;

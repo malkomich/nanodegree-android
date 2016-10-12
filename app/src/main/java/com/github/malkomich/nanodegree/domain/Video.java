@@ -3,12 +3,8 @@ package com.github.malkomich.nanodegree.domain;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import org.json.JSONObject;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 /**
  * Model which represents an online video information.
@@ -58,20 +54,11 @@ public class Video implements Parcelable {
         return type;
     }
 
-    public URL getURL() {
-
-        Uri.Builder uriBuilder = Uri.parse(YOUTUBE_BASE_PATH)
+    public Uri getUri() {
+        return Uri.parse(YOUTUBE_BASE_PATH)
             .buildUpon()
-            .appendQueryParameter("v", key);
-
-        try {
-            return new URL(uriBuilder.build()
-                .toString());
-
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        return null;
+            .appendQueryParameter("v", key)
+            .build();
     }
 
     public String getSite() {

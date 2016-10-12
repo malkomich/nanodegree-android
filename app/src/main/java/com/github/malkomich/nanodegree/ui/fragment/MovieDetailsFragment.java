@@ -1,5 +1,7 @@
 package com.github.malkomich.nanodegree.ui.fragment;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -25,8 +27,6 @@ import com.github.malkomich.nanodegree.domain.VideoResults;
 import com.squareup.picasso.Picasso;
 
 import org.joda.time.LocalDate;
-
-import java.net.URL;
 
 /**
  * Movie details view.
@@ -120,13 +120,12 @@ public class MovieDetailsFragment extends Fragment implements OnTrailerLinkLoade
     @Override
     public void onVideosLoaded(final VideoResults videoResults) {
 
-        final URL trailerLink = videoResults.getTrailerLink();
+        final Uri trailerLink = videoResults.getTrailerLink();
         if(trailerLink != null) {
             trailerButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // TODO: add intent filter for youtube
-                    Toast.makeText(getContext(), trailerLink.toString(), Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(Intent.ACTION_VIEW, trailerLink));
                 }
             });
             Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
