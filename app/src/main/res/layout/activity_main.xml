@@ -14,7 +14,7 @@
     tools:context="com.github.malkomich.nanodegree.ui.activity.MainActivity"
     android:gravity="center_horizontal"
     android:textAlignment="center"
-    android:background="@color/colorBackground">
+    android:background="@color/windowBackground">
 
     <TextView
         android:id="@+id/menu_title"

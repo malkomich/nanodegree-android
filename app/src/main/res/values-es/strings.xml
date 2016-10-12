@@ -8,4 +8,5 @@
     <string name="menu_title">¡Mis aplicaciones Nanodegree!</string>
     <string name="movie_trailer_button">Ver trailer</string>
     <string name="title_activity_popular_movies">Películas populares</string>
+    <string name="connection_error">Comprueba tu conexión a internet</string>
 </resources>

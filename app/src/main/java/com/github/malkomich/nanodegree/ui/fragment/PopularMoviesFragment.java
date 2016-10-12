@@ -2,6 +2,8 @@ package com.github.malkomich.nanodegree.ui.fragment;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,6 +18,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.github.malkomich.nanodegree.R;
 import com.github.malkomich.nanodegree.adapter.MovieAdapter;
@@ -37,9 +41,11 @@ public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedLis
     private static final int PREFS_ORDER_POPULARITY = 0;
     private static final int PREFS_ORDER_RATE = 1;
 
-    private GridView gridView;
     private MovieAdapter adapter;
     private OnMovieSelectedListener onMovieSelectedListener;
+
+    private GridView gridView;
+    private RelativeLayout errorView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,6 +59,7 @@ public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedLis
 
         View view = inflater.inflate(R.layout.fragment_popular_movies, container, false);
 
+        errorView = (RelativeLayout) view.findViewById(R.id.connection_error_layout);
         gridView = (GridView) view.findViewById(R.id.grid_view);
         gridView.setAdapter(adapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -63,7 +70,7 @@ public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedLis
         });
 
         // Call async task after creating grid view, if necessary
-        if(adapter == null || adapter.isEmpty()) {
+        if((adapter == null || adapter.isEmpty()) && isOnline()) {
             Bundle params = new Bundle();
             params.putString(MovieService.API_KEY, getString(R.string.tmdbApiKey));
             new GetPopularMovies(this).execute(params);
@@ -128,6 +135,27 @@ public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedLis
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnPlaceUpdatedListener");
         }
+    }
+
+    /**
+     *  Check if exists any connection available.
+     *
+     * @return boolean
+     */
+    private boolean isOnline() {
+        ConnectivityManager connManager =
+            (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = connManager.getActiveNetworkInfo();
+        if(netInfo != null && netInfo.isConnectedOrConnecting()) {
+            gridView.setVisibility(View.VISIBLE);
+            errorView.setVisibility(View.GONE);
+            return true;
+        }
+        // If there's no available network, show the respective view to inform about it.
+        gridView.setVisibility(View.GONE);
+        errorView.setVisibility(View.VISIBLE);
+
+        return false;
     }
 
     /**

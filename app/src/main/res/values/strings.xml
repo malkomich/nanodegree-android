@@ -16,5 +16,6 @@
     <string name="action_sort_rated">Sort by rating</string>
     <string name="date">%1$d of %2$s of %3$d</string>
     <string name="movie_trailer_button">Watch the trailer</string>
+    <string name="connection_error">Check your network connection</string>
 
 </resources>
