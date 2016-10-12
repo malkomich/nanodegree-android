@@ -28,7 +28,7 @@ public class Video implements Parcelable {
         site = json.optString(SITE);
     }
 
-    protected Video(Parcel in) {
+    private Video(Parcel in) {
         key = in.readString();
         type = VideoType.from(in.readString());
         site = in.readString();

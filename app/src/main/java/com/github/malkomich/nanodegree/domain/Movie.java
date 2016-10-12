@@ -43,7 +43,7 @@ public class Movie implements Parcelable {
         voteAverage = json.optDouble(VOTE_AVERAGE);
     }
 
-    protected Movie(Parcel in) {
+    private Movie(Parcel in) {
         id = in.readInt();
         title = in.readString();
         description = in.readString();
