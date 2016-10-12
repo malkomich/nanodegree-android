@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +21,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.github.malkomich.nanodegree.R;
 import com.github.malkomich.nanodegree.adapter.MovieAdapter;
@@ -44,6 +46,7 @@ public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedLis
     private MovieAdapter adapter;
     private OnMovieSelectedListener onMovieSelectedListener;
 
+    private SwipeRefreshLayout refreshSwiper;
     private GridView gridView;
     private RelativeLayout errorView;
 
@@ -59,7 +62,16 @@ public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedLis
 
         View view = inflater.inflate(R.layout.fragment_popular_movies, container, false);
 
+        refreshSwiper = (SwipeRefreshLayout) view.findViewById(R.id.refreshSwiper);
+        refreshSwiper.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshData();
+            }
+        });
+
         errorView = (RelativeLayout) view.findViewById(R.id.connection_error_layout);
+
         gridView = (GridView) view.findViewById(R.id.grid_view);
         gridView.setAdapter(adapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -70,10 +82,8 @@ public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedLis
         });
 
         // Call async task after creating grid view, if necessary
-        if((adapter == null || adapter.isEmpty()) && isOnline()) {
-            Bundle params = new Bundle();
-            params.putString(MovieService.API_KEY, getString(R.string.tmdbApiKey));
-            new GetPopularMovies(this).execute(params);
+        if(adapter == null || adapter.isEmpty()) {
+            refreshData();
         }
 
         return view;
@@ -101,6 +111,10 @@ public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedLis
 
         adapter.setMovies(results.getMovies());
         sortBy(order, false);
+
+        // Update views
+        showGridView(true);
+        refreshSwiper.setRefreshing(false);
     }
 
     @Override
@@ -146,16 +160,39 @@ public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedLis
         ConnectivityManager connManager =
             (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = connManager.getActiveNetworkInfo();
-        if(netInfo != null && netInfo.isConnectedOrConnecting()) {
-            gridView.setVisibility(View.VISIBLE);
-            errorView.setVisibility(View.GONE);
-            return true;
-        }
-        // If there's no available network, show the respective view to inform about it.
-        gridView.setVisibility(View.GONE);
-        errorView.setVisibility(View.VISIBLE);
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
 
-        return false;
+    /**
+     * Refresh movies shown on the grid view.
+     */
+    private void refreshData() {
+
+        if(isOnline()) {
+            Bundle params = new Bundle();
+            params.putString(MovieService.API_KEY, getString(R.string.tmdbApiKey));
+            new GetPopularMovies(this).execute(params);
+        } else {
+            refreshSwiper.setRefreshing(false);
+
+            if (adapter == null || adapter.isEmpty()) {
+                showGridView(false);
+            } else {
+                Toast.makeText(getContext(), getString(R.string.connection_error), Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    /**
+     * Toggle grid view & error view visibility status.
+     *
+     * @param gridViewVisible visibility status of the grid view
+     */
+    private void showGridView(boolean gridViewVisible) {
+        int gridViewVisibility = gridViewVisible ? View.VISIBLE : View.GONE;
+        int errorViewVisibility = gridViewVisible ? View.GONE : View.VISIBLE;
+        gridView.setVisibility(gridViewVisibility);
+        errorView.setVisibility(errorViewVisibility);
     }
 
     /**
