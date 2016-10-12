@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name">NanoDegree</string>
+    <string name="app_name" translatable="false">NanoDegree</string>
 
     <string name="button_app_1">Popular Movies</string>
-    <string name="button_app_2">Stock Hawk</string>
-    <string name="button_app_3">Build it Bigger</string>
-    <string name="button_app_4">Make Your App Material</string>
-    <string name="button_app_5">Go Ubiquitous</string>
-    <string name="button_app_6">Capstone</string>
+    <string name="button_app_2" translatable="false">Stock Hawk</string>
+    <string name="button_app_3" translatable="false">Build it Bigger</string>
+    <string name="button_app_4" translatable="false">Make Your App Material</string>
+    <string name="button_app_5" translatable="false">Go Ubiquitous</string>
+    <string name="button_app_6" translatable="false">Capstone</string>
 
     <string name="menu_title">My Nanodegree Apps!</string>
     <string name="button_toast">This button will launch \"%1$s\" app!</string>
