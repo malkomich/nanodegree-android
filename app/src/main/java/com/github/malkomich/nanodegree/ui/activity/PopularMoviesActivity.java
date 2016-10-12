@@ -26,9 +26,6 @@ public class PopularMoviesActivity extends AppCompatActivity implements OnMovieS
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_popular_movies);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
         // Check whether the activity is using the layout version with
         // the fragment_container FrameLayout. If so, we must add the first fragment
         if (findViewById(R.id.fragment_container) != null) {

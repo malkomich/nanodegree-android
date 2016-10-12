@@ -3,9 +3,6 @@
     <string name="action_sort_popularity">Ordenar por popularidad</string>
     <string name="action_sort_rated">Ordenar por valoración</string>
     <string name="button_app_1">Películas populares</string>
-    <string name="button_app_2"></string>
-    <string name="button_app_3"></string>
-    <string name="button_app_4"></string>
     <string name="button_toast">¡Este botón ejecutará la app \"%1$s\"!</string>
     <string name="date">%1$d de %2$s del %3$d</string>
     <string name="menu_title">¡Mis aplicaciones Nanodegree!</string>

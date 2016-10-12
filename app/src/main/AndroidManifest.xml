@@ -23,8 +23,7 @@
 
         <activity
             android:name=".ui.activity.PopularMoviesActivity"
-            android:label="@string/title_activity_popular_movies"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:label="@string/title_activity_popular_movies">
         </activity>
 
     </application>

@@ -9,23 +9,14 @@
         <item name="toolbarStyle">@style/AppTheme.AppBarOverlay</item>
         <item name="android:textColorPrimary">@color/textColorPrimary</item>
         <item name="android:textColorSecondary">@color/textColorSecondary</item>
-        <item name="android:textColorSecondaryInverse">@color/textColorPrimary</item>
         <item name="android:windowBackground">@color/windowBackground</item>
     </style>
 
-    <style name="AppTheme.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
-
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
-        <item name="background">?attr/colorPrimaryDark</item>
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:background">?attr/colorPrimaryDark</item>
         <item name="logo">@mipmap/ic_launcher</item>
         <item name="titleMarginStart">@dimen/margin_tiny</item>
-        <item name="android:textSize">@dimen/text_size_large</item>
     </style>
-
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
     <style name="MenuButtonTheme" parent="Widget.AppCompat.Button.Colored">
         <item name="android:background">@drawable/button_background</item>
