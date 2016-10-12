@@ -10,8 +10,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.malkomich.nanodegree.R;
+import com.github.malkomich.nanodegree.Util.MathUtils;
 import com.github.malkomich.nanodegree.domain.Movie;
 import com.squareup.picasso.Picasso;
+
+import org.joda.time.LocalDate;
 
 /**
  * Movie details view.
@@ -26,6 +29,9 @@ public class MovieDetailsFragment extends Fragment {
     private ImageView imageView;
     private TextView titleView;
     private TextView descriptionView;
+    private TextView popularityView;
+    private TextView rateView;
+    private TextView dateView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,6 +50,9 @@ public class MovieDetailsFragment extends Fragment {
         imageView = (ImageView) view.findViewById(R.id.movie_image);
         titleView = (TextView) view.findViewById(R.id.movie_title);
         descriptionView = (TextView) view.findViewById(R.id.movie_description);
+        popularityView = (TextView) view.findViewById(R.id.movie_popularity);
+        rateView = (TextView) view.findViewById(R.id.movie_rate);
+        dateView = (TextView) view.findViewById(R.id.movie_date);
 
         return view;
     }
@@ -53,6 +62,20 @@ public class MovieDetailsFragment extends Fragment {
         Picasso.with(getContext()).load(movie.getPosterPath()).into(imageView);
         titleView.setText(movie.getTitle());
         descriptionView.setText(movie.getDescription());
+        popularityView.setText(
+            String.valueOf(MathUtils.roundDouble(movie.getPopularity(), 2))
+        );
+        rateView.setText(
+            String.valueOf(MathUtils.roundDouble(movie.getVoteAverage(), 2))
+        );
+
+        LocalDate date = movie.getDate();
+        dateView.setText(getString(R.string.date,
+            date.getDayOfMonth(),
+            movie.getDate().toString("MMMM"),
+            date.getYear())
+        );
+
         mCurrentMovie = movie;
     }
 

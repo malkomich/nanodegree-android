@@ -72,8 +72,6 @@ public class PopularMoviesActivity extends AppCompatActivity implements OnMovieS
 
             getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, detailsFragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-//                .addToBackStack(null)
                 .commit();
         }
     }

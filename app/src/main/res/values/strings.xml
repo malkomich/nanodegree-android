@@ -14,5 +14,6 @@
 
     <string name="action_sort_popularity">Sort by popularity</string>
     <string name="action_sort_rated">Sort by rating</string>
+    <string name="date">%1$d of %2$s of %3$d</string>
 
 </resources>

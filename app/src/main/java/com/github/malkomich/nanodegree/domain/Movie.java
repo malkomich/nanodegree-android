@@ -3,6 +3,7 @@ package com.github.malkomich.nanodegree.domain;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import org.joda.time.LocalDate;
 import org.json.JSONObject;
 
 /**
@@ -11,10 +12,12 @@ import org.json.JSONObject;
 public class Movie implements Parcelable {
 
     private static final String IMAGE_BASE_PATH = "http://image.tmdb.org/t/p/w185/";
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
 
     private static final String ID = "id";
     private static final String TITLE = "title";
     private static final String DESCRIPTION = "overview";
+    private static final String DATE = "release_date";
     private static final String POSTER_PATH = "poster_path";
     private static final String POPULARITY = "popularity";
     private static final String VOTE_COUNT = "vote_count";
@@ -23,6 +26,7 @@ public class Movie implements Parcelable {
     private int id;
     private String title;
     private String description;
+    private LocalDate date;
     private String posterPath;
     private double popularity;
     private int voteCount;
@@ -32,6 +36,7 @@ public class Movie implements Parcelable {
         id = json.optInt(ID);
         title = json.optString(TITLE);
         description = json.optString(DESCRIPTION);
+        date = new LocalDate(json.optString(DATE));
         posterPath = json.optString(POSTER_PATH);
         popularity = json.optDouble(POPULARITY);
         voteCount = json.optInt(VOTE_COUNT);
@@ -41,6 +46,8 @@ public class Movie implements Parcelable {
     protected Movie(Parcel in) {
         id = in.readInt();
         title = in.readString();
+        description = in.readString();
+        date = new LocalDate(in.readString());
         posterPath = in.readString();
         popularity = in.readDouble();
         voteCount = in.readInt();
@@ -68,6 +75,8 @@ public class Movie implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(id);
         dest.writeString(title);
+        dest.writeString(description);
+        dest.writeString(date.toString(DATE_FORMAT));
         dest.writeString(posterPath);
         dest.writeDouble(popularity);
         dest.writeInt(voteCount);
@@ -84,6 +93,10 @@ public class Movie implements Parcelable {
 
     public String getDescription() {
         return description;
+    }
+
+    public LocalDate getDate() {
+        return date;
     }
 
     public String getPosterPath() {
