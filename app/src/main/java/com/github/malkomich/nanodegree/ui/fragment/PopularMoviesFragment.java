@@ -17,6 +17,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.LinearLayout;
@@ -78,6 +79,16 @@ public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedLis
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 onMovieSelectedListener.onMovieSelected(adapter.getItem(position));
+            }
+        });
+        gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {}
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+                refreshSwiper.setEnabled(gridView.getChildCount() > 0 && gridView.getChildAt(0).getTop() == 0);
             }
         });
 
