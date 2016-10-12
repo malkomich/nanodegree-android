@@ -65,7 +65,7 @@ public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedLis
         // Call async task after creating grid view, if necessary
         if(adapter == null || adapter.isEmpty()) {
             Bundle params = new Bundle();
-            params.putString(MovieService.API_KEY, getString(R.string.tmbdApiKey));
+            params.putString(MovieService.API_KEY, getString(R.string.tmdbApiKey));
             new GetPopularMovies(this).execute(params);
         }
 

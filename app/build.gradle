@@ -3,12 +3,12 @@ apply plugin: 'com.android.application'
 // Load private properties from file
 def privatePropertiesFile = rootProject.file("private.properties")
 def privateProperties = new Properties()
-def tmbdApiKey;
+def tmdbApiKey;
 if (privatePropertiesFile.canRead()) {
     privateProperties.load(new FileInputStream(privatePropertiesFile))
 
-    if (privateProperties.containsKey('tmbdApiKey')) {
-        tmbdApiKey = privateProperties['tmbdApiKey']
+    if (privateProperties.containsKey('tmdbApiKey')) {
+        tmdbApiKey = privateProperties['tmdbApiKey']
     }
 }
 
@@ -30,10 +30,18 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            resValue "string", "tmbdApiKey", tmbdApiKey
+            /**
+             * IMPORTANT !!!
+             * Replace 'tmdbApiKey' variable by your API key for 'The Movie Database'
+             */
+            resValue "string", "tmdbApiKey", tmdbApiKey
         }
         debug {
-            resValue "string", "tmbdApiKey", tmbdApiKey
+            /**
+             * IMPORTANT !!!
+             * Replace 'tmdbApiKey' variable by your API key for 'The Movie Database'
+             */
+            resValue "string", "tmdbApiKey", tmdbApiKey
         }
     }
 }

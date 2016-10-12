@@ -91,7 +91,7 @@ public class MovieDetailsFragment extends Fragment implements OnTrailerLinkLoade
         mCurrentMovie = movie;
 
         Bundle params = new Bundle();
-        params.putString(MovieService.API_KEY, getString(R.string.tmbdApiKey));
+        params.putString(MovieService.API_KEY, getString(R.string.tmdbApiKey));
         params.putInt(MovieService.MOVIE_ID, movie.getId());
         new GetTrailerLink(this).execute(params);
     }
