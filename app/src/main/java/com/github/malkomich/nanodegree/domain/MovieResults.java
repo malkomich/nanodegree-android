@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Model which represents a page of movies movies.
+ * Model which represents a page of movies.
  */
 public class MovieResults {
 

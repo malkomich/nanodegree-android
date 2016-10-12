@@ -25,13 +25,9 @@ public class MovieAdapter extends BaseAdapter {
 
     private final Context context;
     private List<Movie> movies = new ArrayList<>();
-    private OnMovieSelectedListener onMovieSelectedListener;
 
-    public MovieAdapter(Context context, OnMovieSelectedListener onMovieSelectedListener, List<Movie> movies) {
-
+    public MovieAdapter(Context context) {
         this.context = context;
-        this.movies = movies;
-        this.onMovieSelectedListener = onMovieSelectedListener;
     }
 
     @Override
@@ -69,13 +65,6 @@ public class MovieAdapter extends BaseAdapter {
             .tag(context)
             .into(view);
 
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onMovieSelectedListener.onMovieSelected(movie);
-            }
-        });
-
         return view;
     }
 
@@ -101,5 +90,9 @@ public class MovieAdapter extends BaseAdapter {
         });
 
         notifyDataSetChanged();
+    }
+
+    public void setMovies(List<Movie> movies) {
+        this.movies = movies;
     }
 }

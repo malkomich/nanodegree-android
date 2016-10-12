@@ -1,25 +1,35 @@
 package com.github.malkomich.nanodegree.ui.fragment;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.malkomich.nanodegree.R;
 import com.github.malkomich.nanodegree.Util.MathUtils;
+import com.github.malkomich.nanodegree.callback.OnTrailerLinkLoadedListener;
+import com.github.malkomich.nanodegree.data.MovieClient;
+import com.github.malkomich.nanodegree.data.MovieService;
 import com.github.malkomich.nanodegree.domain.Movie;
 import com.squareup.picasso.Picasso;
 
 import org.joda.time.LocalDate;
 
+import java.net.URL;
+
 /**
  * Movie details view.
  */
-public class MovieDetailsFragment extends Fragment {
+public class MovieDetailsFragment extends Fragment implements OnTrailerLinkLoadedListener {
 
     private static final String TAG = MovieDetailsFragment.class.getName();
     public static final String MOVIE = "movie";
@@ -32,6 +42,7 @@ public class MovieDetailsFragment extends Fragment {
     private TextView popularityView;
     private TextView rateView;
     private TextView dateView;
+    private Button trailerButton;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,6 +64,7 @@ public class MovieDetailsFragment extends Fragment {
         popularityView = (TextView) view.findViewById(R.id.movie_popularity);
         rateView = (TextView) view.findViewById(R.id.movie_rate);
         dateView = (TextView) view.findViewById(R.id.movie_date);
+        trailerButton = (Button) view.findViewById(R.id.movie_trailer_button);
 
         return view;
     }
@@ -77,6 +89,11 @@ public class MovieDetailsFragment extends Fragment {
         );
 
         mCurrentMovie = movie;
+
+        Bundle params = new Bundle();
+        params.putString(MovieService.API_KEY, getString(R.string.tmbdApiKey));
+        params.putInt(MovieService.MOVIE_ID, movie.getId());
+        new GetTrailerLink(this).execute(params);
     }
 
     @Override
@@ -96,6 +113,46 @@ public class MovieDetailsFragment extends Fragment {
         super.onSaveInstanceState(outState);
 
         outState.putParcelable(MOVIE, mCurrentMovie);
+    }
+
+    @Override
+    public void onTrailerLinkLoaded(URL trailerLink) {
+        trailerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO: add intent filter for youtube
+            }
+        });
+        Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
+        trailerButton.setVisibility(View.VISIBLE);
+        trailerButton.setAnimation(anim);
+    }
+
+    class GetTrailerLink extends AsyncTask<Bundle, Void, URL> {
+
+        private OnTrailerLinkLoadedListener callback;
+
+        public GetTrailerLink(OnTrailerLinkLoadedListener callback) {
+            this.callback = callback;
+        }
+
+        @Override
+        protected URL doInBackground(@NonNull Bundle... params) {
+            String apiKey = params[0].getString(MovieService.API_KEY);
+            int movieId = params[0].getInt(MovieService.MOVIE_ID);
+
+            MovieService client = new MovieClient();
+
+            return client.getMovieVideos(apiKey, movieId).getTrailerLink();
+        }
+
+        @Override
+        protected void onPostExecute(URL trailerLink) {
+            super.onPostExecute(trailerLink);
+            if(trailerLink != null) {
+                callback.onTrailerLinkLoaded(trailerLink);
+            }
+        }
     }
 
 }

@@ -116,18 +116,36 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="@dimen/margin_large"
-        android:background="@color/windowBackground">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/movie_description"
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:textAppearanceMedium"/>
+            android:layout_height="match_parent"
+            android:padding="@dimen/margin_large"
+            android:background="@color/windowBackground">
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/movie_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:textAppearanceMedium"/>
+
+            <Button
+                android:id="@+id/movie_trailer_button"
+                android:layout_width="@dimen/button_width"
+                android:layout_height="wrap_content"
+                android:text="@string/movie_trailer_button"
+                android:visibility="gone"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/margin_medium"
+                android:padding="@dimen/margin_tiny"
+                style="@style/Widget.AppCompat.Button.Colored"/>
+
+        </LinearLayout>
+
+    </ScrollView>
 
 </LinearLayout>

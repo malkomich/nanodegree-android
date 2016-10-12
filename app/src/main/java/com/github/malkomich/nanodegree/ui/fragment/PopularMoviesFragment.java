@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
 import com.github.malkomich.nanodegree.R;
@@ -44,7 +45,7 @@ public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedLis
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        Log.d(TAG, "onCreate");
+        adapter = new MovieAdapter(getContext());
     }
 
     @Override
@@ -52,9 +53,14 @@ public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedLis
 
         View view = inflater.inflate(R.layout.fragment_popular_movies, container, false);
 
-        if(gridView == null) {
-            gridView = (GridView) view.findViewById(R.id.grid_view);
-        }
+        gridView = (GridView) view.findViewById(R.id.grid_view);
+        gridView.setAdapter(adapter);
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                onMovieSelectedListener.onMovieSelected(adapter.getItem(position));
+            }
+        });
 
         // Call async task after creating grid view, if necessary
         if(adapter == null || adapter.isEmpty()) {
@@ -81,12 +87,13 @@ public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedLis
     @Override
     public void onMoviesLoaded(MovieResults results) {
 
+        Log.d(TAG, "onMoviesLoaded");
+
         SharedPreferences preferences = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         int order = preferences.getInt("order", PREFS_ORDER_POPULARITY);
 
-        adapter = new MovieAdapter(getContext(), onMovieSelectedListener, results.getMovies());
+        adapter.setMovies(results.getMovies());
         sortBy(order, false);
-        gridView.setAdapter(adapter);
     }
 
     @Override
