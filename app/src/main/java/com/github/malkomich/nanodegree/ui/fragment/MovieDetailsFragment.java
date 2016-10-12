@@ -13,6 +13,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.malkomich.nanodegree.R;
 import com.github.malkomich.nanodegree.Util.MathUtils;
@@ -20,6 +21,7 @@ import com.github.malkomich.nanodegree.callback.OnTrailerLinkLoadedListener;
 import com.github.malkomich.nanodegree.data.MovieClient;
 import com.github.malkomich.nanodegree.data.MovieService;
 import com.github.malkomich.nanodegree.domain.Movie;
+import com.github.malkomich.nanodegree.domain.VideoResults;
 import com.squareup.picasso.Picasso;
 
 import org.joda.time.LocalDate;
@@ -116,19 +118,24 @@ public class MovieDetailsFragment extends Fragment implements OnTrailerLinkLoade
     }
 
     @Override
-    public void onTrailerLinkLoaded(URL trailerLink) {
-        trailerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO: add intent filter for youtube
-            }
-        });
-        Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
-        trailerButton.setVisibility(View.VISIBLE);
-        trailerButton.setAnimation(anim);
+    public void onVideosLoaded(final VideoResults videoResults) {
+
+        final URL trailerLink = videoResults.getTrailerLink();
+        if(trailerLink != null) {
+            trailerButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // TODO: add intent filter for youtube
+                    Toast.makeText(getContext(), trailerLink.toString(), Toast.LENGTH_SHORT).show();
+                }
+            });
+            Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
+            trailerButton.setVisibility(View.VISIBLE);
+            trailerButton.setAnimation(anim);
+        }
     }
 
-    class GetTrailerLink extends AsyncTask<Bundle, Void, URL> {
+    class GetTrailerLink extends AsyncTask<Bundle, Void, VideoResults> {
 
         private OnTrailerLinkLoadedListener callback;
 
@@ -137,20 +144,20 @@ public class MovieDetailsFragment extends Fragment implements OnTrailerLinkLoade
         }
 
         @Override
-        protected URL doInBackground(@NonNull Bundle... params) {
+        protected VideoResults doInBackground(@NonNull Bundle... params) {
             String apiKey = params[0].getString(MovieService.API_KEY);
             int movieId = params[0].getInt(MovieService.MOVIE_ID);
 
             MovieService client = new MovieClient();
 
-            return client.getMovieVideos(apiKey, movieId).getTrailerLink();
+            return client.getMovieVideos(apiKey, movieId);
         }
 
         @Override
-        protected void onPostExecute(URL trailerLink) {
-            super.onPostExecute(trailerLink);
-            if(trailerLink != null) {
-                callback.onTrailerLinkLoaded(trailerLink);
+        protected void onPostExecute(VideoResults videoResults) {
+            super.onPostExecute(videoResults);
+            if(videoResults != null) {
+                callback.onVideosLoaded(videoResults);
             }
         }
     }

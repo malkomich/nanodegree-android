@@ -178,8 +178,9 @@ public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedLis
         @Override
         protected void onPostExecute(MovieResults movieResults) {
             super.onPostExecute(movieResults);
-            callback.onMoviesLoaded(movieResults);
+            if(movieResults != null) {
+                callback.onMoviesLoaded(movieResults);
+            }
         }
     }
-
 }

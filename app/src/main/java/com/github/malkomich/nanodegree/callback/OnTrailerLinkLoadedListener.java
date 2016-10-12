@@ -1,11 +1,11 @@
 package com.github.malkomich.nanodegree.callback;
 
-import java.net.URL;
+import com.github.malkomich.nanodegree.domain.VideoResults;
 
 /**
- * Triggered when the trailer link of a movie is loaded.
+ * Triggered when the available videos of a movie are loaded.
  */
 public interface OnTrailerLinkLoadedListener {
 
-    void onTrailerLinkLoaded(URL trailerLink);
+    void onVideosLoaded(VideoResults videoResults);
 }
