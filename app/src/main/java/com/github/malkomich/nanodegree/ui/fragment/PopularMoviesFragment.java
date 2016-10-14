@@ -33,6 +33,9 @@ import com.github.malkomich.nanodegree.data.MovieService;
 import com.github.malkomich.nanodegree.domain.MovieResults;
 import com.squareup.picasso.Picasso;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Movies fragment containing the grid view of poster images of the popular films.
  */
@@ -47,9 +50,9 @@ public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedLis
     private MovieAdapter adapter;
     private OnMovieSelectedListener onMovieSelectedListener;
 
-    private SwipeRefreshLayout refreshSwiper;
-    private GridView gridView;
-    private RelativeLayout errorView;
+    @BindView(R.id.refreshSwiper) protected SwipeRefreshLayout refreshSwiper;
+    @BindView(R.id.grid_view) protected GridView gridView;
+    @BindView(R.id.connection_error_layout) protected RelativeLayout errorView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -62,8 +65,8 @@ public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedLis
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_popular_movies, container, false);
+        ButterKnife.bind(this, view);
 
-        refreshSwiper = (SwipeRefreshLayout) view.findViewById(R.id.refreshSwiper);
         refreshSwiper.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -71,9 +74,6 @@ public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedLis
             }
         });
 
-        errorView = (RelativeLayout) view.findViewById(R.id.connection_error_layout);
-
-        gridView = (GridView) view.findViewById(R.id.grid_view);
         gridView.setAdapter(adapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

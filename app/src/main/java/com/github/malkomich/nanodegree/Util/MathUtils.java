@@ -1,4 +1,4 @@
-package com.github.malkomich.nanodegree.Util;
+package com.github.malkomich.nanodegree.util;
 
 import java.math.BigDecimal;
 

@@ -15,10 +15,9 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.malkomich.nanodegree.R;
-import com.github.malkomich.nanodegree.Util.MathUtils;
+import com.github.malkomich.nanodegree.util.MathUtils;
 import com.github.malkomich.nanodegree.callback.OnTrailerLinkLoadedListener;
 import com.github.malkomich.nanodegree.data.MovieClient;
 import com.github.malkomich.nanodegree.data.MovieService;
@@ -27,6 +26,9 @@ import com.github.malkomich.nanodegree.domain.VideoResults;
 import com.squareup.picasso.Picasso;
 
 import org.joda.time.LocalDate;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Movie details view.
@@ -38,13 +40,13 @@ public class MovieDetailsFragment extends Fragment implements OnTrailerLinkLoade
 
     private Movie mCurrentMovie;
 
-    private ImageView imageView;
-    private TextView titleView;
-    private TextView descriptionView;
-    private TextView popularityView;
-    private TextView rateView;
-    private TextView dateView;
-    private Button trailerButton;
+    @BindView(R.id.movie_image) protected ImageView imageView;
+    @BindView(R.id.movie_title) protected TextView titleView;
+    @BindView(R.id.movie_description) protected TextView descriptionView;
+    @BindView(R.id.movie_popularity) protected TextView popularityView;
+    @BindView(R.id.movie_rate) protected TextView rateView;
+    @BindView(R.id.movie_date) protected TextView dateView;
+    @BindView(R.id.movie_trailer_button) protected Button trailerButton;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,15 +61,7 @@ public class MovieDetailsFragment extends Fragment implements OnTrailerLinkLoade
         }
 
         View view = inflater.inflate(R.layout.fragment_movie_details, container, false);
-
-        imageView = (ImageView) view.findViewById(R.id.movie_image);
-        titleView = (TextView) view.findViewById(R.id.movie_title);
-        descriptionView = (TextView) view.findViewById(R.id.movie_description);
-        popularityView = (TextView) view.findViewById(R.id.movie_popularity);
-        rateView = (TextView) view.findViewById(R.id.movie_rate);
-        dateView = (TextView) view.findViewById(R.id.movie_date);
-        trailerButton = (Button) view.findViewById(R.id.movie_trailer_button);
-
+        ButterKnife.bind(this, view);
         return view;
     }
 
@@ -125,7 +119,7 @@ public class MovieDetailsFragment extends Fragment implements OnTrailerLinkLoade
             trailerButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                startActivity(new Intent(Intent.ACTION_VIEW, trailerLink));
+                    startActivity(new Intent(Intent.ACTION_VIEW, trailerLink));
                 }
             });
             Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
