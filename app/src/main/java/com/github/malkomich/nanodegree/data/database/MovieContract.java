@@ -31,10 +31,10 @@ public class MovieContract {
 
         public static final String TABLE_NAME = "video";
 
-        public static final String COL_MOVIE_ID = "id";
-        public static final String COL_KEY = "key";
-        public static final String COL_TYPE = "type";
-        public static final String COL_SITE = "site";
+        public static final String COL_MOVIE_ID = "movie_id";
+        public static final String COL_KEY = "video_key";
+        public static final String COL_TYPE = "video_type";
+        public static final String COL_SITE = "publish_site";
 
     }
 
