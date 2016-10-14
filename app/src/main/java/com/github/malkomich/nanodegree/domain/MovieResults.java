@@ -1,8 +1,10 @@
 package com.github.malkomich.nanodegree.domain;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,30 +12,34 @@ import java.util.List;
 /**
  * Model which represents a page of movies.
  */
-public class MovieResults {
+public class MovieResults implements Parcelable {
 
     private static final String MOVIES = "results";
     private static final String PAGE = "page";
 
+    @SerializedName(MOVIES)
+    @Expose
     private List<Movie> movies = new ArrayList<>();
+    @SerializedName(PAGE)
+    @Expose
     private int page;
 
-    public MovieResults(JSONObject json) {
-
-        page = json.optInt(PAGE, 0);
-
-        try {
-            JSONArray moviesJSONArray = json.getJSONArray(MOVIES);
-
-            for (int i = 0; i < moviesJSONArray.length(); i++) {
-                Movie movie = new Movie(moviesJSONArray.getJSONObject(i));
-                movies.add(movie);
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    private MovieResults(Parcel in) {
+        movies = in.createTypedArrayList(Movie.CREATOR);
+        page = in.readInt();
     }
+
+    public static final Creator<MovieResults> CREATOR = new Creator<MovieResults>() {
+        @Override
+        public MovieResults createFromParcel(Parcel in) {
+            return new MovieResults(in);
+        }
+
+        @Override
+        public MovieResults[] newArray(int size) {
+            return new MovieResults[size];
+        }
+    };
 
     public List<Movie> getMovies() {
         return movies;
@@ -41,6 +47,17 @@ public class MovieResults {
 
     public int getPage() {
         return page;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(page);
+        dest.writeTypedList(movies);
     }
 
 }

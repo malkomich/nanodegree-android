@@ -3,8 +3,10 @@ package com.github.malkomich.nanodegree.domain;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import org.joda.time.LocalDate;
-import org.json.JSONObject;
 
 /**
  * Model which represents a movie.
@@ -12,7 +14,6 @@ import org.json.JSONObject;
 public class Movie implements Parcelable {
 
     private static final String IMAGE_BASE_PATH = "http://image.tmdb.org/t/p/w185/";
-    private static final String DATE_FORMAT = "yyyy-MM-dd";
 
     private static final String ID = "id";
     private static final String TITLE = "title";
@@ -23,31 +24,36 @@ public class Movie implements Parcelable {
     private static final String VOTE_COUNT = "vote_count";
     private static final String VOTE_AVERAGE = "vote_average";
 
+    @SerializedName(ID)
+    @Expose
     private int id;
+    @SerializedName(TITLE)
+    @Expose
     private String title;
+    @SerializedName(DESCRIPTION)
+    @Expose
     private String description;
-    private LocalDate date;
+    @SerializedName(DATE)
+    @Expose
+    private String date;
+    @SerializedName(POSTER_PATH)
+    @Expose
     private String posterPath;
+    @SerializedName(POPULARITY)
+    @Expose
     private double popularity;
+    @SerializedName(VOTE_COUNT)
+    @Expose
     private int voteCount;
+    @SerializedName(VOTE_AVERAGE)
+    @Expose
     private double voteAverage;
-
-    public Movie(JSONObject json) {
-        id = json.optInt(ID);
-        title = json.optString(TITLE);
-        description = json.optString(DESCRIPTION);
-        date = new LocalDate(json.optString(DATE));
-        posterPath = json.optString(POSTER_PATH);
-        popularity = json.optDouble(POPULARITY);
-        voteCount = json.optInt(VOTE_COUNT);
-        voteAverage = json.optDouble(VOTE_AVERAGE);
-    }
 
     private Movie(Parcel in) {
         id = in.readInt();
         title = in.readString();
         description = in.readString();
-        date = new LocalDate(in.readString());
+        date = in.readString();
         posterPath = in.readString();
         popularity = in.readDouble();
         voteCount = in.readInt();
@@ -66,23 +72,6 @@ public class Movie implements Parcelable {
         }
     };
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(id);
-        dest.writeString(title);
-        dest.writeString(description);
-        dest.writeString(date.toString(DATE_FORMAT));
-        dest.writeString(posterPath);
-        dest.writeDouble(popularity);
-        dest.writeInt(voteCount);
-        dest.writeDouble(voteAverage);
-    }
-
     public int getId() {
         return id;
     }
@@ -96,7 +85,7 @@ public class Movie implements Parcelable {
     }
 
     public LocalDate getDate() {
-        return date;
+        return new LocalDate(date);
     }
 
     public String getPosterPath() {
@@ -113,6 +102,23 @@ public class Movie implements Parcelable {
 
     public double getVoteAverage() {
         return voteAverage;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(title);
+        dest.writeString(description);
+        dest.writeString(date);
+        dest.writeString(posterPath);
+        dest.writeDouble(popularity);
+        dest.writeInt(voteCount);
+        dest.writeDouble(voteAverage);
     }
 
 }

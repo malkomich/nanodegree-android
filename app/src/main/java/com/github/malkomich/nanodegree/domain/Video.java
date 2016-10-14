@@ -4,6 +4,9 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import org.json.JSONObject;
 
 /**
@@ -18,19 +21,19 @@ public class Video implements Parcelable {
     private static final String TYPE = "type";
     private static final String SITE = "site";
 
+    @SerializedName(KEY)
+    @Expose
     private String key;
-    private VideoType type;
+    @SerializedName(TYPE)
+    @Expose
+    private String type;
+    @SerializedName(SITE)
+    @Expose
     private String site;
-
-    public Video(JSONObject json) {
-        key = json.optString(KEY);
-        type = VideoType.from(json.optString(TYPE));
-        site = json.optString(SITE);
-    }
 
     private Video(Parcel in) {
         key = in.readString();
-        type = VideoType.from(in.readString());
+        type = in.readString();
         site = in.readString();
     }
 
@@ -46,19 +49,19 @@ public class Video implements Parcelable {
         }
     };
 
-    public String getKey() {
-        return key;
-    }
-
-    public VideoType getType() {
-        return type;
-    }
-
     public Uri getUri() {
         return Uri.parse(YOUTUBE_BASE_PATH)
             .buildUpon()
             .appendQueryParameter("v", key)
             .build();
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public VideoType getType() {
+        return VideoType.from(type);
     }
 
     public String getSite() {
@@ -73,7 +76,7 @@ public class Video implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(key);
-        dest.writeString(type.name);
+        dest.writeString(type);
         dest.writeString(site);
     }
 

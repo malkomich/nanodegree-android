@@ -1,10 +1,11 @@
 package com.github.malkomich.nanodegree.domain;
 
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,30 +13,34 @@ import java.util.List;
 /**
  * Model which represents the list of available videos of a specific movie.
  */
-public class VideoResults {
+public class VideoResults implements Parcelable {
 
     private static final String ID = "id";
     private static final String VIDEOS = "results";
 
+    @SerializedName(ID)
+    @Expose
     private int movieId;
+    @SerializedName(VIDEOS)
+    @Expose
     private List<Video> videos = new ArrayList<>();
 
-    public VideoResults(JSONObject json) {
-
-        movieId = json.optInt(ID, 0);
-
-        try {
-            JSONArray videosJSONArray = json.getJSONArray(VIDEOS);
-
-            for (int i = 0; i < videosJSONArray.length(); i++) {
-                Video video = new Video(videosJSONArray.getJSONObject(i));
-                videos.add(video);
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    private VideoResults(Parcel in) {
+        movieId = in.readInt();
+        videos = in.createTypedArrayList(Video.CREATOR);
     }
+
+    public static final Creator<VideoResults> CREATOR = new Creator<VideoResults>() {
+        @Override
+        public VideoResults createFromParcel(Parcel in) {
+            return new VideoResults(in);
+        }
+
+        @Override
+        public VideoResults[] newArray(int size) {
+            return new VideoResults[size];
+        }
+    };
 
     public List<Video> getVideos() {
         return videos;
@@ -48,5 +53,16 @@ public class VideoResults {
             }
         }
         return null;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(movieId);
+        dest.writeTypedList(videos);
     }
 }

@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -20,26 +18,27 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.github.malkomich.nanodegree.R;
 import com.github.malkomich.nanodegree.adapter.MovieAdapter;
 import com.github.malkomich.nanodegree.callback.OnMovieSelectedListener;
-import com.github.malkomich.nanodegree.callback.OnMoviesLoadedListener;
-import com.github.malkomich.nanodegree.data.MovieClient;
+import com.github.malkomich.nanodegree.data.HttpClientGenerator;
 import com.github.malkomich.nanodegree.data.MovieService;
 import com.github.malkomich.nanodegree.domain.MovieResults;
 import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Movies fragment containing the grid view of poster images of the popular films.
  */
-public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedListener {
+public class PopularMoviesFragment extends Fragment implements Callback<MovieResults> {
 
     private static final String TAG = PopularMoviesFragment.class.getName();
     private static final String PREFS_NAME = "PopularMoviesPrefs";
@@ -113,22 +112,6 @@ public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedLis
     }
 
     @Override
-    public void onMoviesLoaded(MovieResults results) {
-
-        Log.d(TAG, "onMoviesLoaded");
-
-        SharedPreferences preferences = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        int order = preferences.getInt("order", PREFS_ORDER_POPULARITY);
-
-        adapter.setMovies(results.getMovies());
-        sortBy(order, false);
-
-        // Update views
-        showGridView(true);
-        refreshSwiper.setRefreshing(false);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
@@ -180,9 +163,16 @@ public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedLis
     private void refreshData() {
 
         if(isOnline()) {
-            Bundle params = new Bundle();
-            params.putString(MovieService.API_KEY, getString(R.string.tmdbApiKey));
-            new GetPopularMovies(this).execute(params);
+            String apiKey = getString(R.string.tmdbApiKey);
+
+            // HTTP Client initialization
+            MovieService service = HttpClientGenerator.createService(
+                MovieService.class,
+                MovieService.BASE_URL
+            );
+
+            service.getPopularMovies(apiKey).enqueue(this);
+
         } else {
             refreshSwiper.setRefreshing(false);
 
@@ -234,29 +224,27 @@ public class PopularMoviesFragment extends Fragment implements OnMoviesLoadedLis
         }
     }
 
-    class GetPopularMovies extends AsyncTask<Bundle, Void, MovieResults> {
+    @Override
+    public void onResponse(Call<MovieResults> call, Response<MovieResults> response) {
 
-        private OnMoviesLoadedListener callback;
+        if(response.isSuccessful()) {
+            MovieResults results = response.body();
 
-        public GetPopularMovies(OnMoviesLoadedListener callback) {
-            this.callback = callback;
-        }
+            SharedPreferences preferences = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            int order = preferences.getInt("order", PREFS_ORDER_POPULARITY);
 
-        @Override
-        protected MovieResults doInBackground(@NonNull Bundle... params) {
-            String apiKey = params[0].getString(MovieService.API_KEY);
+            adapter.setMovies(results.getMovies());
+            sortBy(order, false);
 
-            MovieService client = new MovieClient();
-
-            return client.getPopularMovies(apiKey);
-        }
-
-        @Override
-        protected void onPostExecute(MovieResults movieResults) {
-            super.onPostExecute(movieResults);
-            if(movieResults != null) {
-                callback.onMoviesLoaded(movieResults);
-            }
+            // Update views
+            showGridView(true);
+            refreshSwiper.setRefreshing(false);
         }
     }
+
+    @Override
+    public void onFailure(Call<MovieResults> call, Throwable t) {
+        t.printStackTrace();
+    }
+
 }

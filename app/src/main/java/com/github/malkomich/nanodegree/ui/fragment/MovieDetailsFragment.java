@@ -2,9 +2,7 @@ package com.github.malkomich.nanodegree.ui.fragment;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -17,9 +15,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.malkomich.nanodegree.R;
+import com.github.malkomich.nanodegree.data.HttpClientGenerator;
 import com.github.malkomich.nanodegree.util.MathUtils;
-import com.github.malkomich.nanodegree.callback.OnTrailerLinkLoadedListener;
-import com.github.malkomich.nanodegree.data.MovieClient;
 import com.github.malkomich.nanodegree.data.MovieService;
 import com.github.malkomich.nanodegree.domain.Movie;
 import com.github.malkomich.nanodegree.domain.VideoResults;
@@ -29,11 +26,14 @@ import org.joda.time.LocalDate;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Movie details view.
  */
-public class MovieDetailsFragment extends Fragment implements OnTrailerLinkLoadedListener {
+public class MovieDetailsFragment extends Fragment implements Callback<VideoResults> {
 
     private static final String TAG = MovieDetailsFragment.class.getName();
     public static final String MOVIE = "movie";
@@ -86,10 +86,15 @@ public class MovieDetailsFragment extends Fragment implements OnTrailerLinkLoade
 
         mCurrentMovie = movie;
 
-        Bundle params = new Bundle();
-        params.putString(MovieService.API_KEY, getString(R.string.tmdbApiKey));
-        params.putInt(MovieService.MOVIE_ID, movie.getId());
-        new GetTrailerLink(this).execute(params);
+        String apiKey = getString(R.string.tmdbApiKey);
+
+        // HTTP Client initialization
+        MovieService service = HttpClientGenerator.createService(
+            MovieService.class,
+            MovieService.BASE_URL
+        );
+
+        service.getMovieVideos(movie.getId(), apiKey).enqueue(this);
     }
 
     @Override
@@ -112,47 +117,28 @@ public class MovieDetailsFragment extends Fragment implements OnTrailerLinkLoade
     }
 
     @Override
-    public void onVideosLoaded(final VideoResults videoResults) {
+    public void onResponse(Call<VideoResults> call, Response<VideoResults> response) {
 
-        final Uri trailerLink = videoResults.getTrailerLink();
-        if(trailerLink != null) {
-            trailerButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, trailerLink));
-                }
-            });
-            Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
-            trailerButton.setVisibility(View.VISIBLE);
-            trailerButton.setAnimation(anim);
+        if(response.isSuccessful()) {
+            VideoResults videoResults = response.body();
+            final Uri trailerLink = videoResults.getTrailerLink();
+            if(trailerLink != null) {
+                trailerButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startActivity(new Intent(Intent.ACTION_VIEW, trailerLink));
+                    }
+                });
+                Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
+                trailerButton.setVisibility(View.VISIBLE);
+                trailerButton.setAnimation(anim);
+            }
         }
     }
 
-    class GetTrailerLink extends AsyncTask<Bundle, Void, VideoResults> {
+    @Override
+    public void onFailure(Call<VideoResults> call, Throwable t) {
 
-        private OnTrailerLinkLoadedListener callback;
-
-        public GetTrailerLink(OnTrailerLinkLoadedListener callback) {
-            this.callback = callback;
-        }
-
-        @Override
-        protected VideoResults doInBackground(@NonNull Bundle... params) {
-            String apiKey = params[0].getString(MovieService.API_KEY);
-            int movieId = params[0].getInt(MovieService.MOVIE_ID);
-
-            MovieService client = new MovieClient();
-
-            return client.getMovieVideos(apiKey, movieId);
-        }
-
-        @Override
-        protected void onPostExecute(VideoResults videoResults) {
-            super.onPostExecute(videoResults);
-            if(videoResults != null) {
-                callback.onVideosLoaded(videoResults);
-            }
-        }
     }
 
 }
