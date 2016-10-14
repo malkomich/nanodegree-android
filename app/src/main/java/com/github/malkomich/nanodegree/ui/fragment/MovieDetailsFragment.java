@@ -15,9 +15,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.malkomich.nanodegree.R;
-import com.github.malkomich.nanodegree.data.HttpClientGenerator;
+import com.github.malkomich.nanodegree.data.webservice.HttpClientGenerator;
 import com.github.malkomich.nanodegree.util.MathUtils;
-import com.github.malkomich.nanodegree.data.MovieService;
+import com.github.malkomich.nanodegree.data.webservice.MovieService;
 import com.github.malkomich.nanodegree.domain.Movie;
 import com.github.malkomich.nanodegree.domain.VideoResults;
 import com.squareup.picasso.Picasso;

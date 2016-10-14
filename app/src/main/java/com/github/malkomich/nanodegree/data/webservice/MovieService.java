@@ -1,4 +1,4 @@
-package com.github.malkomich.nanodegree.data;
+package com.github.malkomich.nanodegree.data.webservice;
 
 import com.github.malkomich.nanodegree.domain.MovieResults;
 import com.github.malkomich.nanodegree.domain.VideoResults;

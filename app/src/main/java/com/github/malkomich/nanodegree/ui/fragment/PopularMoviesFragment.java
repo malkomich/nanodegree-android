@@ -24,8 +24,8 @@ import android.widget.Toast;
 import com.github.malkomich.nanodegree.R;
 import com.github.malkomich.nanodegree.adapter.MovieAdapter;
 import com.github.malkomich.nanodegree.callback.OnMovieSelectedListener;
-import com.github.malkomich.nanodegree.data.HttpClientGenerator;
-import com.github.malkomich.nanodegree.data.MovieService;
+import com.github.malkomich.nanodegree.data.webservice.HttpClientGenerator;
+import com.github.malkomich.nanodegree.data.webservice.MovieService;
 import com.github.malkomich.nanodegree.domain.MovieResults;
 import com.squareup.picasso.Picasso;
 

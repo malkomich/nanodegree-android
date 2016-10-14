@@ -1,4 +1,4 @@
-package com.github.malkomich.nanodegree.data;
+package com.github.malkomich.nanodegree.data.webservice;
 
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
