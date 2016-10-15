@@ -27,10 +27,10 @@ public class MovieDBHelper extends SQLiteOpenHelper {
             MovieContract.MovieEntry.COL_TITLE + " TEXT NOT NULL, " +
             MovieContract.MovieEntry.COL_DESCRIPTION + " TEXT NOT NULL, " +
             MovieContract.MovieEntry.COL_DATE + " TEXT NOT NULL, " +
-            MovieContract.MovieEntry.COL_POSTER_PATH + " TEXT NOT NULL, " +
-            MovieContract.MovieEntry.COL_POPULARITY + " REAL NOT NULL, " +
-            MovieContract.MovieEntry.COL_VOTE_COUNT + " INTEGER NOT NULL, " +
-            MovieContract.MovieEntry.COL_VOTE_AVERAGE + " REAL NOT NULL " +
+            MovieContract.MovieEntry.COL_POSTER_PATH + " TEXT, " +
+            MovieContract.MovieEntry.COL_POPULARITY + " REAL DEFAULT 0.0, " +
+            MovieContract.MovieEntry.COL_VOTE_COUNT + " INTEGER DEFAULT 0, " +
+            MovieContract.MovieEntry.COL_VOTE_AVERAGE + " REAL DEFAULT 0.0 " +
             ");";
 
         final String SQL_CREATE_VIDEO_TABLE = "CREATE TABLE " + MovieContract.VideoEntry.TABLE_NAME + "(" +
