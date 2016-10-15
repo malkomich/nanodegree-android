@@ -1,13 +1,16 @@
 package com.github.malkomich.nanodegree.data.database;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,12 +42,13 @@ public class MovieProviderTest {
             MovieContract.MovieEntry.CONTENT_TYPE, type);
 
         // content://com.github.malkomich.nanodegree/movie/1/video
-        type = mContext.getContentResolver().getType(MovieContract.VideoEntry.buildVideoUri(1));
+        type = mContext.getContentResolver().getType(MovieContract.VideoEntry.buildVideoUriWithMovieId(1));
         // vnd.android.cursor.dir/com.github.malkomich.nanodegree/video
         assertEquals("Error: the VideoEntry CONTENT_URI with movie id should return VideoEntry.CONTENT_TYPE",
             MovieContract.VideoEntry.CONTENT_TYPE, type);
     }
 
+    @Test
     public void testBasicMovieQuery() {
 
         MovieDBHelper dbHelper = new MovieDBHelper(mContext);
@@ -73,6 +77,7 @@ public class MovieProviderTest {
         }
     }
 
+    @Test
     public void testBasicVideoQuery() {
 
         MovieDBHelper dbHelper = new MovieDBHelper(mContext);
@@ -90,7 +95,7 @@ public class MovieProviderTest {
 
         // Test the basic content provider query
         Cursor videoCursor = mContext.getContentResolver().query(
-            MovieContract.VideoEntry.CONTENT_URI,
+            MovieContract.VideoEntry.buildVideoUriWithMovieId(movieRowId),
             null,
             null,
             null,
@@ -99,6 +104,68 @@ public class MovieProviderTest {
 
         // Make sure we get the correct cursor out of the database
         TestUtilities.validateCursor("testBasicVideoQuery", videoCursor, videoValues);
+    }
+
+    @Test
+    public void testInsertProvider() {
+        ContentValues testValues = TestUtilities.createDummyMovieValues();
+
+        // Register a content observer for our insert.  This time, directly with the content resolver
+        TestUtilities.TestContentObserver observer = TestUtilities.getTestContentObserver();
+        mContext.getContentResolver().registerContentObserver(MovieContract.MovieEntry.CONTENT_URI, true, observer);
+        Uri movieUri = mContext.getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, testValues);
+
+        // Check if getContext().getContentResolver().notifyChange(uri, null) is being called;
+        observer.waitForNotificationOrFail();
+        mContext.getContentResolver().unregisterContentObserver(observer);
+
+        long movieRowId = ContentUris.parseId(movieUri);
+
+        // Verify we got a row back.
+        assertTrue(movieRowId != -1);
+
+        // Data's inserted.  IN THEORY.  Now pull some out to stare at it and verify it made
+        // the round trip.
+
+        // A cursor is your primary interface to the query results.
+        Cursor cursor = mContext.getContentResolver().query(
+            MovieContract.MovieEntry.CONTENT_URI,
+            null,
+            null,
+            null,
+            null
+        );
+
+        TestUtilities.validateCursor("testInsertProvider. Error validating MovieEntry.",
+            cursor, testValues);
+
+        // Add video
+        ContentValues videoValues = TestUtilities.createDummyVideoValues(movieRowId);
+        // The TestContentObserver is a one-shot class
+        observer = TestUtilities.getTestContentObserver();
+
+        mContext.getContentResolver()
+            .registerContentObserver(MovieContract.VideoEntry.buildVideoUriWithMovieId(movieRowId), true, observer);
+
+        Uri videoInsertUri = mContext.getContentResolver()
+            .insert(MovieContract.VideoEntry.buildVideoUriWithMovieId(movieRowId), videoValues);
+        assertTrue(videoInsertUri != null);
+
+        // Check if getContext().getContentResolver().notifyChange(uri, null) is being called;
+        observer.waitForNotificationOrFail();
+        mContext.getContentResolver().unregisterContentObserver(observer);
+
+        // A cursor is your primary interface to the query results.
+        Cursor videoCursor = mContext.getContentResolver().query(
+            MovieContract.VideoEntry.buildVideoUriWithMovieId(movieRowId),
+            null,
+            null,
+            null,
+            null
+        );
+
+        TestUtilities.validateCursor("testInsertProvider. Error validating VideoEntry insert.",
+            videoCursor, videoValues);
     }
 
 }

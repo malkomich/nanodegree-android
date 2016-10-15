@@ -4,6 +4,8 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
@@ -14,7 +16,7 @@ public class MovieProvider extends ContentProvider {
     private MovieDBHelper mOpenHelper;
 
     static final int MOVIE = 100;
-    static final int VIDEOS_WITH_MOVIE_ID = 201;
+    static final int VIDEO_WITH_MOVIE_ID = 201;
 
     private static final SQLiteQueryBuilder sVideoByMovieIdQueryBuilder;
 
@@ -37,9 +39,9 @@ public class MovieProvider extends ContentProvider {
             "." + MovieContract.VideoEntry.COL_MOVIE_ID + " = ? ";
 
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
-        // Implement this to handle requests to delete one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+    public boolean onCreate() {
+        mOpenHelper = new MovieDBHelper(getContext());
+        return true;
     }
 
     @Override
@@ -50,23 +52,11 @@ public class MovieProvider extends ContentProvider {
         switch (match) {
             case MOVIE:
                 return MovieContract.MovieEntry.CONTENT_TYPE;
-            case VIDEOS_WITH_MOVIE_ID:
+            case VIDEO_WITH_MOVIE_ID:
                 return MovieContract.VideoEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
-    }
-
-    @Override
-    public Uri insert(Uri uri, ContentValues values) {
-        // TODO: Implement this to handle requests to insert a new row.
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    @Override
-    public boolean onCreate() {
-        mOpenHelper = new MovieDBHelper(getContext());
-        return true;
     }
 
     @Override
@@ -86,7 +76,7 @@ public class MovieProvider extends ContentProvider {
                 );
                 break;
             // movie/#/video
-            case VIDEOS_WITH_MOVIE_ID:
+            case VIDEO_WITH_MOVIE_ID:
                 responseCursor = getVideosByMovieId(uri, projection, sortOrder);
                 break;
             default:
@@ -97,9 +87,72 @@ public class MovieProvider extends ContentProvider {
     }
 
     @Override
+    public Uri insert(Uri uri, ContentValues values) {
+
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        Uri responseUri;
+        long _id;
+
+        switch (match) {
+            case MOVIE:
+                _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
+                if(_id > 0) {
+                    responseUri = MovieContract.MovieEntry
+                        .buildMovieUri(_id);
+                } else {
+                    throw new SQLException("Failed to insert row into " + uri);
+                }
+                break;
+            case VIDEO_WITH_MOVIE_ID:
+                _id = db.insert(MovieContract.VideoEntry.TABLE_NAME, null, values);
+                if(_id > 0) {
+                    responseUri = MovieContract.VideoEntry
+                        .buildVideoUri(MovieContract.VideoEntry.getMovieIdFromUri(uri), _id);
+                } else {
+                    throw new SQLException("Failed to insert row into " + uri);
+                }
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        getContext().getContentResolver()
+            .notifyChange(uri, null);
+        db.close();
+        return responseUri;
+    }
+
+    @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         // TODO: Implement this to handle requests to update one or more rows.
         throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int rowsDeleted;
+
+        selection = (selection != null) ? selection : "1";
+
+        switch (match) {
+            case MOVIE:
+                rowsDeleted = db.delete(MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case VIDEO_WITH_MOVIE_ID:
+                rowsDeleted = db.delete(MovieContract.VideoEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        if(rowsDeleted > 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        db.close();
+        return rowsDeleted;
     }
 
     static UriMatcher buildUriMatcher() {
@@ -112,12 +165,13 @@ public class MovieProvider extends ContentProvider {
         // For each type of URI you want to add, create a corresponding code.
         matcher.addURI(authority, MovieContract.PATH_MOVIE, MOVIE);
         matcher.addURI(authority, MovieContract.PATH_MOVIE + "/#/" + MovieContract.VideoEntry.PATH_VIDEO,
-            VIDEOS_WITH_MOVIE_ID);
+            VIDEO_WITH_MOVIE_ID
+        );
         return matcher;
     }
 
     private Cursor getVideosByMovieId(Uri uri, String[] projection, String sortOrder) {
-        long movieId = MovieContract.MovieEntry.getMovieIdFromUri(uri);
+        long movieId = MovieContract.VideoEntry.getMovieIdFromUri(uri);
         return sVideoByMovieIdQueryBuilder.query(
             mOpenHelper.getReadableDatabase(),
             projection,

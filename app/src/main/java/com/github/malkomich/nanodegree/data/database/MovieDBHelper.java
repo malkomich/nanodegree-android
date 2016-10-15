@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class MovieDBHelper extends SQLiteOpenHelper {
 
     // Version is required to be increased each time the database schema is updated.
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
 
     static final String DB_NAME = "movie_db";
 

@@ -44,9 +44,10 @@ public class MovieContract {
         public static final String COL_VOTE_COUNT = "vote_count";
         public static final String COL_VOTE_AVERAGE = "vote_average";
 
-        public static long getMovieIdFromUri(Uri uri) {
-            return Long.parseLong(uri.getPathSegments().get(1));
+        public static Uri buildMovieUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
         }
+
     }
 
     /**
@@ -54,7 +55,7 @@ public class MovieContract {
      */
     public static final class VideoEntry implements BaseColumns {
 
-        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
+        private static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
             .appendPath(PATH_MOVIE)
             .build();
 
@@ -75,10 +76,18 @@ public class MovieContract {
         public static final String COL_TYPE = "video_type";
         public static final String COL_SITE = "publish_site";
 
-        public static Uri buildVideoUri(long movieId) {
+        public static Uri buildVideoUriWithMovieId(long movieId) {
             return CONTENT_URI.buildUpon().appendPath(String.valueOf(movieId))
                 .appendPath(PATH_VIDEO)
                 .build();
+        }
+
+        public static Uri buildVideoUri(long movieId, long videoId) {
+            return ContentUris.withAppendedId(buildVideoUriWithMovieId(movieId), videoId);
+        }
+
+        public static long getMovieIdFromUri(Uri uri) {
+            return Long.parseLong(uri.getPathSegments().get(1));
         }
 
     }
