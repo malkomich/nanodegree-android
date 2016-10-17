@@ -15,6 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static com.github.malkomich.nanodegree.data.database.TestUtilities.BULK_INSERT_RECORDS_TO_INSERT;
 import static org.junit.Assert.*;
 
 /**
@@ -30,6 +31,11 @@ public class MovieProviderTest {
     @BeforeClass
     public static void init() {
         mContext = InstrumentationRegistry.getTargetContext();
+    }
+
+    @Before
+    public void setUp() {
+        deleteAllRecords();
     }
 
     @Test
@@ -73,7 +79,7 @@ public class MovieProviderTest {
         // level 19 or greater because getNotificationUri was added in API level 19.
         if ( Build.VERSION.SDK_INT >= 19 ) {
             assertEquals("Error: Movie Query did not properly set NotificationUri",
-                movieCursor.getNotificationUri(), MovieContract.MovieEntry.CONTENT_URI);
+                MovieContract.MovieEntry.CONTENT_URI, movieCursor.getNotificationUri());
         }
     }
 
@@ -85,7 +91,7 @@ public class MovieProviderTest {
 
         long movieRowId = TestUtilities.insertDummyMovie(mContext);
 
-        // Fantastic.  Now that we have a location, add some weather!
+        // Fantastic.  Now that we have a movie, add a video!
         ContentValues videoValues = TestUtilities.createDummyVideoValues(movieRowId);
 
         long videoRowId = db.insert(MovieContract.VideoEntry.TABLE_NAME, null, videoValues);
@@ -166,6 +172,195 @@ public class MovieProviderTest {
 
         TestUtilities.validateCursor("testInsertProvider. Error validating VideoEntry insert.",
             videoCursor, videoValues);
+    }
+
+    @Test
+    public void testUpdateMovie() {
+
+        // Create a new map of values, where column names are the keys
+        ContentValues values = TestUtilities.createDummyMovieValues();
+
+        Uri movieUri = mContext.getContentResolver().
+            insert(MovieContract.MovieEntry.CONTENT_URI, values);
+        long movieRowId = ContentUris.parseId(movieUri);
+
+        // Verify we got a row back.
+        assertTrue(movieRowId != -1);
+
+        ContentValues updatedValues = new ContentValues(values);
+        updatedValues.put(MovieContract.MovieEntry._ID, movieRowId);
+        updatedValues.put(MovieContract.MovieEntry.COL_TITLE, "Deadpool");
+
+        // Create a cursor with observer to make sure that the content provider is notifying
+        // the observers as expected
+        Cursor movieCursor = mContext.getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
+
+        TestUtilities.TestContentObserver tco = TestUtilities.getTestContentObserver();
+        movieCursor.registerContentObserver(tco);
+
+        int count = mContext.getContentResolver().update(
+            MovieContract.MovieEntry.CONTENT_URI, updatedValues, MovieContract.MovieEntry._ID + "= ?",
+            new String[] { Long.toString(movieRowId)});
+        assertEquals(1, count);
+
+        // Test to make sure our observer is called.  If not, we throw an assertion.
+        //
+        // Students: If your code is failing here, it means that your content provider
+        // isn't calling getContext().getContentResolver().notifyChange(uri, null);
+        tco.waitForNotificationOrFail();
+
+        movieCursor.unregisterContentObserver(tco);
+        movieCursor.close();
+
+        // A cursor is your primary interface to the query results.
+        Cursor cursor = mContext.getContentResolver().query(
+            MovieContract.MovieEntry.CONTENT_URI,
+            null,
+            MovieContract.MovieEntry._ID + " = " + movieRowId,
+            null,
+            null
+        );
+
+        TestUtilities.validateCursor("testUpdateMovie.  Error validating movie entry update.",
+            cursor, updatedValues);
+
+        cursor.close();
+    }
+
+    @Test
+    public void testBulkInsertVideos() {
+
+        ContentValues testValues = TestUtilities.createDummyMovieValues();
+        Uri movieUri = mContext.getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, testValues);
+        long movieRowId = ContentUris.parseId(movieUri);
+
+        // Verify we got a row back.
+        assertTrue(movieRowId != -1);
+
+        // Data's inserted.  IN THEORY.  Now pull some out to stare at it and verify it made
+        // the round trip.
+
+        // A cursor is your primary interface to the query results.
+        Cursor cursor = mContext.getContentResolver().query(
+            MovieContract.MovieEntry.CONTENT_URI,
+            null,
+            null,
+            null,
+            null
+        );
+
+        TestUtilities.validateCursor("testBulkInsert. Error validating MovieEntry.",
+            cursor, testValues);
+
+        ContentValues[] bulkInsertContentValues = TestUtilities.createBulkInsertVideoValues(movieRowId);
+
+        // Register a content observer for our bulk insert.
+        TestUtilities.TestContentObserver videoObserver = TestUtilities.getTestContentObserver();
+        mContext.getContentResolver()
+            .registerContentObserver(MovieContract.VideoEntry.CONTENT_URI, true, videoObserver);
+
+        int insertCount = mContext.getContentResolver()
+            .bulkInsert(MovieContract.VideoEntry.CONTENT_URI, bulkInsertContentValues);
+
+        // Check if `getContext().getContentResolver().notifyChange(uri, null)´ is being called.
+        videoObserver.waitForNotificationOrFail();
+        mContext.getContentResolver().unregisterContentObserver(videoObserver);
+
+        assertEquals(BULK_INSERT_RECORDS_TO_INSERT, insertCount);
+
+        // A cursor is your primary interface to the query results.
+        cursor = mContext.getContentResolver().query(
+            MovieContract.VideoEntry.buildVideoUriWithMovieId(movieRowId),
+            null,
+            null,
+            null,
+            null
+        );
+
+        // we should have as many records in the database as we've inserted
+        assertEquals(BULK_INSERT_RECORDS_TO_INSERT, cursor.getCount());
+
+        // and let's make sure they match the ones we created
+        cursor.moveToFirst();
+        for ( int i = 0; i < BULK_INSERT_RECORDS_TO_INSERT; i++, cursor.moveToNext() ) {
+            TestUtilities.validateCurrentRecord("testBulkInsert.  Error validating VideoEntry " + i,
+                cursor, bulkInsertContentValues[i]);
+        }
+        cursor.close();
+    }
+
+    @Test
+    public void testBulkInsertMovies() {
+
+        ContentValues[] bulkInsertContentValues = TestUtilities.createBulkInsertMovieValues();
+
+        // Register a content observer for our bulk insert.
+        TestUtilities.TestContentObserver movieObserver = TestUtilities.getTestContentObserver();
+        mContext.getContentResolver()
+            .registerContentObserver(MovieContract.MovieEntry.CONTENT_URI, true, movieObserver);
+
+        int insertCount = mContext.getContentResolver()
+            .bulkInsert(MovieContract.MovieEntry.CONTENT_URI, bulkInsertContentValues);
+
+        // Check if `getContext().getContentResolver().notifyChange(uri, null)´ is being called.
+        movieObserver.waitForNotificationOrFail();
+        mContext.getContentResolver().unregisterContentObserver(movieObserver);
+
+        assertEquals(BULK_INSERT_RECORDS_TO_INSERT, insertCount);
+
+        // A cursor is your primary interface to the query results.
+        Cursor cursor = mContext.getContentResolver().query(
+            MovieContract.MovieEntry.CONTENT_URI,
+            null,
+            null,
+            null,
+            null
+        );
+
+        // we should have as many records in the database as we've inserted
+        assertEquals(BULK_INSERT_RECORDS_TO_INSERT, cursor.getCount());
+
+        // and let's make sure they match the ones we created
+        cursor.moveToFirst();
+        for ( int i = 0; i < BULK_INSERT_RECORDS_TO_INSERT; i++, cursor.moveToNext() ) {
+            TestUtilities.validateCurrentRecord("testBulkInsert.  Error validating MovieEntry " + i,
+                cursor, bulkInsertContentValues[i]);
+        }
+        cursor.close();
+    }
+
+    private void deleteAllRecords() {
+
+        mContext.getContentResolver().delete(
+            MovieContract.VideoEntry.CONTENT_URI,
+            null,
+            null
+        );
+        mContext.getContentResolver().delete(
+            MovieContract.MovieEntry.CONTENT_URI,
+            null,
+            null
+        );
+
+        Cursor cursor = mContext.getContentResolver().query(
+            MovieContract.VideoEntry.CONTENT_URI,
+            null,
+            null,
+            null,
+            null
+        );
+        assertEquals("Error: Records not deleted from Video table during delete", 0, cursor.getCount());
+        cursor.close();
+
+        cursor = mContext.getContentResolver().query(
+            MovieContract.MovieEntry.CONTENT_URI,
+            null,
+            null,
+            null,
+            null
+        );
+        assertEquals("Error: Records not deleted from Movie table during delete", 0, cursor.getCount());
+        cursor.close();
     }
 
 }

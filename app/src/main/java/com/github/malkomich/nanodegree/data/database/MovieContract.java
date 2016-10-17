@@ -17,6 +17,7 @@ public class MovieContract {
 
     // Resources paths which can be accessed by the content provider
     public static final String PATH_MOVIE = "movie";
+    public static final String PATH_VIDEO = "video";
 
     /**
      * Inner class that defines the table contents of the movie table
@@ -55,11 +56,9 @@ public class MovieContract {
      */
     public static final class VideoEntry implements BaseColumns {
 
-        private static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
-            .appendPath(PATH_MOVIE)
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
+            .appendPath(PATH_VIDEO)
             .build();
-
-        static final String PATH_VIDEO = "video";
 
         public static final String CONTENT_TYPE =
             ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_VIDEO;
@@ -76,18 +75,19 @@ public class MovieContract {
         public static final String COL_TYPE = "video_type";
         public static final String COL_SITE = "publish_site";
 
+        public static Uri buildVideoUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
         public static Uri buildVideoUriWithMovieId(long movieId) {
-            return CONTENT_URI.buildUpon().appendPath(String.valueOf(movieId))
-                .appendPath(PATH_VIDEO)
+            return CONTENT_URI.buildUpon()
+                .appendQueryParameter(COL_MOVIE_ID, String.valueOf(movieId))
                 .build();
         }
 
-        public static Uri buildVideoUri(long movieId, long videoId) {
-            return ContentUris.withAppendedId(buildVideoUriWithMovieId(movieId), videoId);
-        }
-
         public static long getMovieIdFromUri(Uri uri) {
-            return Long.parseLong(uri.getPathSegments().get(1));
+            String movieIdString = uri.getQueryParameter(COL_MOVIE_ID);
+            return movieIdString != null ? Long.parseLong(movieIdString) : 0;
         }
 
     }

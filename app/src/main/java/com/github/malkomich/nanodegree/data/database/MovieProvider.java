@@ -16,7 +16,7 @@ public class MovieProvider extends ContentProvider {
     private MovieDBHelper mOpenHelper;
 
     static final int MOVIE = 100;
-    static final int VIDEO_WITH_MOVIE_ID = 201;
+    static final int VIDEO = 201;
 
     private static final SQLiteQueryBuilder sVideoByMovieIdQueryBuilder;
 
@@ -52,7 +52,7 @@ public class MovieProvider extends ContentProvider {
         switch (match) {
             case MOVIE:
                 return MovieContract.MovieEntry.CONTENT_TYPE;
-            case VIDEO_WITH_MOVIE_ID:
+            case VIDEO:
                 return MovieContract.VideoEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -76,7 +76,7 @@ public class MovieProvider extends ContentProvider {
                 );
                 break;
             // movie/#/video
-            case VIDEO_WITH_MOVIE_ID:
+            case VIDEO:
                 responseCursor = getVideosByMovieId(uri, projection, sortOrder);
                 break;
             default:
@@ -104,11 +104,11 @@ public class MovieProvider extends ContentProvider {
                     throw new SQLException("Failed to insert row into " + uri);
                 }
                 break;
-            case VIDEO_WITH_MOVIE_ID:
+            case VIDEO:
                 _id = db.insert(MovieContract.VideoEntry.TABLE_NAME, null, values);
                 if(_id > 0) {
                     responseUri = MovieContract.VideoEntry
-                        .buildVideoUri(MovieContract.VideoEntry.getMovieIdFromUri(uri), _id);
+                        .buildVideoUri(_id);
                 } else {
                     throw new SQLException("Failed to insert row into " + uri);
                 }
@@ -118,14 +118,33 @@ public class MovieProvider extends ContentProvider {
         }
         getContext().getContentResolver()
             .notifyChange(uri, null);
-        db.close();
         return responseUri;
     }
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        // TODO: Implement this to handle requests to update one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int rowsUpdated;
+
+        selection = (selection != null) ? selection : "1";
+
+        switch (match) {
+            case MOVIE:
+                rowsUpdated = db.update(MovieContract.MovieEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            case VIDEO:
+                rowsUpdated = db.update(MovieContract.VideoEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        if(rowsUpdated > 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowsUpdated;
     }
 
     @Override
@@ -141,7 +160,7 @@ public class MovieProvider extends ContentProvider {
             case MOVIE:
                 rowsDeleted = db.delete(MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
                 break;
-            case VIDEO_WITH_MOVIE_ID:
+            case VIDEO:
                 rowsDeleted = db.delete(MovieContract.VideoEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             default:
@@ -151,8 +170,50 @@ public class MovieProvider extends ContentProvider {
         if(rowsDeleted > 0) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
-        db.close();
         return rowsDeleted;
+    }
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+
+        int rowsInserted = 0;
+        switch (match) {
+            case MOVIE:
+                db.beginTransaction();
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            rowsInserted++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                break;
+            case VIDEO:
+                db.beginTransaction();
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insert(MovieContract.VideoEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            rowsInserted++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                break;
+            default:
+                return super.bulkInsert(uri, values);
+        }
+
+        getContext().getContentResolver().notifyChange(uri, null);
+        return rowsInserted;
     }
 
     static UriMatcher buildUriMatcher() {
@@ -164,9 +225,7 @@ public class MovieProvider extends ContentProvider {
 
         // For each type of URI you want to add, create a corresponding code.
         matcher.addURI(authority, MovieContract.PATH_MOVIE, MOVIE);
-        matcher.addURI(authority, MovieContract.PATH_MOVIE + "/#/" + MovieContract.VideoEntry.PATH_VIDEO,
-            VIDEO_WITH_MOVIE_ID
-        );
+        matcher.addURI(authority, MovieContract.PATH_VIDEO, VIDEO);
         return matcher;
     }
 

@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.test.runner.AndroidJUnit4;
-import android.util.Log;
 
 import com.github.malkomich.nanodegree.util.PollingCheck;
 
@@ -28,12 +27,19 @@ import static org.junit.Assert.assertTrue;
 @RunWith(AndroidJUnit4.class)
 public class TestUtilities {
 
-    static final String TEST_MOVIE_TITLE = "Hello World!";
-    static final String TEST_MOVIE_DESCRIPTION = "A dummy movie";
-    static final String TEST_MOVIE_DATE = "15-10-2016";
-    static final String TEST_VIDEO_KEY = "d9TpRfDdyU0";
-    static final String TEST_VIDEO_TYPE = "Clip";
-    static final String TEST_VIDEO_SITE = "YouTube";
+    static final int BULK_INSERT_RECORDS_TO_INSERT = 5;
+
+    private static final String TEST_MOVIE_TITLE = "Hello World!";
+    private static final String TEST_MOVIE_DESCRIPTION = "A dummy movie";
+    private static final String TEST_MOVIE_DATE = "15-10-2016";
+    private static final String TEST_VIDEO_KEY = "d9TpRfDdyU0";
+    private static final String TEST_VIDEO_TYPE_CLIP = "Clip";
+    private static final String TEST_VIDEO_TYPE_TRAILER = "Trailer";
+    private static final String TEST_VIDEO_SITE = "YouTube";
+
+    private static final String[] TEST_VIDEO_KEYS_ARRAY = {
+        "9vN6DHB6bJc", "8rvYrVTnSWw", "NjL5BrYD-w0", "J_WhlatQgEc", "s7EdQ4FqbhY"
+    };
 
     static void validateCursor(String error, Cursor valueCursor, ContentValues expectedValues) {
         assertTrue("Empty cursor returned. " + error, valueCursor.moveToFirst());
@@ -41,7 +47,7 @@ public class TestUtilities {
         valueCursor.close();
     }
 
-    private static void validateCurrentRecord(String error, Cursor valueCursor, ContentValues expectedValues) {
+    static void validateCurrentRecord(String error, Cursor valueCursor, ContentValues expectedValues) {
         Set<Map.Entry<String, Object>> valueSet = expectedValues.valueSet();
         for (Map.Entry<String, Object> entry : valueSet) {
             String columnName = entry.getKey();
@@ -68,10 +74,37 @@ public class TestUtilities {
         ContentValues weatherValues = new ContentValues();
         weatherValues.put(MovieContract.VideoEntry.COL_MOVIE_ID, movieRowId);
         weatherValues.put(MovieContract.VideoEntry.COL_KEY, TEST_VIDEO_KEY);
-        weatherValues.put(MovieContract.VideoEntry.COL_TYPE, TEST_VIDEO_TYPE);
+        weatherValues.put(MovieContract.VideoEntry.COL_TYPE, TEST_VIDEO_TYPE_CLIP);
         weatherValues.put(MovieContract.VideoEntry.COL_SITE, TEST_VIDEO_SITE);
 
         return weatherValues;
+    }
+
+    static ContentValues[] createBulkInsertMovieValues() {
+        ContentValues[] returnContentValues = new ContentValues[BULK_INSERT_RECORDS_TO_INSERT];
+
+        for ( int i = 0; i < BULK_INSERT_RECORDS_TO_INSERT; i++ ) {
+            ContentValues movieValues = new ContentValues();
+            movieValues.put(MovieContract.MovieEntry.COL_TITLE, TEST_MOVIE_TITLE + " " + String.valueOf(i));
+            movieValues.put(MovieContract.MovieEntry.COL_DESCRIPTION, TEST_MOVIE_DESCRIPTION);
+            movieValues.put(MovieContract.MovieEntry.COL_DATE, TEST_MOVIE_DATE);
+            returnContentValues[i] = movieValues;
+        }
+        return returnContentValues;
+    }
+
+    static ContentValues[] createBulkInsertVideoValues(long movieRowId) {
+        ContentValues[] returnContentValues = new ContentValues[BULK_INSERT_RECORDS_TO_INSERT];
+
+        for ( int i = 0; i < BULK_INSERT_RECORDS_TO_INSERT; i++ ) {
+            ContentValues videoValues = new ContentValues();
+            videoValues.put(MovieContract.VideoEntry.COL_MOVIE_ID, movieRowId);
+            videoValues.put(MovieContract.VideoEntry.COL_KEY, TEST_VIDEO_KEYS_ARRAY[i]);
+            videoValues.put(MovieContract.VideoEntry.COL_TYPE, TEST_VIDEO_TYPE_TRAILER);
+            videoValues.put(MovieContract.VideoEntry.COL_SITE, TEST_VIDEO_SITE);
+            returnContentValues[i] = videoValues;
+        }
+        return returnContentValues;
     }
 
     static long insertDummyMovie(Context context) {
