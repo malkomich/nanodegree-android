@@ -66,7 +66,7 @@ public class MovieProviderTest {
         // Test the basic content provider query
         Cursor movieCursor = mContext.getContentResolver().query(
             MovieContract.MovieEntry.CONTENT_URI,
-            null,
+            TestUtilities.PROJECTION_MOVIE,
             null,
             null,
             null
@@ -102,7 +102,7 @@ public class MovieProviderTest {
         // Test the basic content provider query
         Cursor videoCursor = mContext.getContentResolver().query(
             MovieContract.VideoEntry.buildVideoUriWithMovieId(movieRowId),
-            null,
+            TestUtilities.PROJECTION_VIDEO,
             null,
             null,
             null
@@ -136,7 +136,7 @@ public class MovieProviderTest {
         // A cursor is your primary interface to the query results.
         Cursor cursor = mContext.getContentResolver().query(
             MovieContract.MovieEntry.CONTENT_URI,
-            null,
+            TestUtilities.PROJECTION_MOVIE,
             null,
             null,
             null
@@ -164,7 +164,7 @@ public class MovieProviderTest {
         // A cursor is your primary interface to the query results.
         Cursor videoCursor = mContext.getContentResolver().query(
             MovieContract.VideoEntry.buildVideoUriWithMovieId(movieRowId),
-            null,
+            TestUtilities.PROJECTION_VIDEO,
             null,
             null,
             null
@@ -193,7 +193,13 @@ public class MovieProviderTest {
 
         // Create a cursor with observer to make sure that the content provider is notifying
         // the observers as expected
-        Cursor movieCursor = mContext.getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
+        Cursor movieCursor = mContext.getContentResolver().query(
+            MovieContract.MovieEntry.CONTENT_URI,
+            TestUtilities.PROJECTION_MOVIE,
+            null,
+            null,
+            null
+        );
 
         TestUtilities.TestContentObserver tco = TestUtilities.getTestContentObserver();
         movieCursor.registerContentObserver(tco);
@@ -215,7 +221,7 @@ public class MovieProviderTest {
         // A cursor is your primary interface to the query results.
         Cursor cursor = mContext.getContentResolver().query(
             MovieContract.MovieEntry.CONTENT_URI,
-            null,
+            TestUtilities.PROJECTION_MOVIE,
             MovieContract.MovieEntry._ID + " = " + movieRowId,
             null,
             null
@@ -243,7 +249,7 @@ public class MovieProviderTest {
         // A cursor is your primary interface to the query results.
         Cursor cursor = mContext.getContentResolver().query(
             MovieContract.MovieEntry.CONTENT_URI,
-            null,
+            TestUtilities.PROJECTION_MOVIE,
             null,
             null,
             null
@@ -271,7 +277,7 @@ public class MovieProviderTest {
         // A cursor is your primary interface to the query results.
         cursor = mContext.getContentResolver().query(
             MovieContract.VideoEntry.buildVideoUriWithMovieId(movieRowId),
-            null,
+            TestUtilities.PROJECTION_VIDEO,
             null,
             null,
             null
@@ -311,7 +317,7 @@ public class MovieProviderTest {
         // A cursor is your primary interface to the query results.
         Cursor cursor = mContext.getContentResolver().query(
             MovieContract.MovieEntry.CONTENT_URI,
-            null,
+            TestUtilities.PROJECTION_MOVIE,
             null,
             null,
             null

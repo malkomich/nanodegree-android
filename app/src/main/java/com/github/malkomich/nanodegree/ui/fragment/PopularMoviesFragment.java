@@ -121,9 +121,6 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
             case R.id.action_sort_rated:
                 sortBy(PREFS_ORDER_RATE, true);
                 return true;
-            case android.R.id.home:
-                Log.d(TAG, "AAAAAAA");
-                return true;
         }
 
         return super.onOptionsItemSelected(item); // important line
@@ -210,7 +207,6 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
                 adapter.sortByPopularity();
                 break;
             case PREFS_ORDER_RATE:
-                Log.d(TAG, "sortByRate");
                 adapter.sortByRate();
                 break;
         }

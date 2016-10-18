@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.test.runner.AndroidJUnit4;
+import android.util.Log;
 
 import com.github.malkomich.nanodegree.util.PollingCheck;
 
@@ -28,6 +29,25 @@ import static org.junit.Assert.assertTrue;
 public class TestUtilities {
 
     static final int BULK_INSERT_RECORDS_TO_INSERT = 5;
+    static final String[] PROJECTION_MOVIE = {
+        MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
+        MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry.COL_API_ID,
+        MovieContract.MovieEntry.COL_TITLE,
+        MovieContract.MovieEntry.COL_DESCRIPTION,
+        MovieContract.MovieEntry.COL_DATE,
+        MovieContract.MovieEntry.COL_POSTER_PATH,
+        MovieContract.MovieEntry.COL_POPULARITY,
+        MovieContract.MovieEntry.COL_VOTE_COUNT,
+        MovieContract.MovieEntry.COL_VOTE_AVERAGE
+    };
+    static final String[] PROJECTION_VIDEO = {
+        MovieContract.VideoEntry.TABLE_NAME + "." + MovieContract.VideoEntry._ID,
+        MovieContract.VideoEntry.TABLE_NAME + "." + MovieContract.VideoEntry.COL_API_ID,
+        MovieContract.VideoEntry.COL_MOVIE_ID,
+        MovieContract.VideoEntry.COL_KEY,
+        MovieContract.VideoEntry.COL_TYPE,
+        MovieContract.VideoEntry.COL_SITE
+    };
 
     private static final String TEST_MOVIE_TITLE = "Hello World!";
     private static final String TEST_MOVIE_DESCRIPTION = "A dummy movie";
@@ -56,13 +76,14 @@ public class TestUtilities {
             String expectedValue = entry.getValue().toString();
             assertEquals("Value '" + entry.getValue().toString() +
                 "' did not match the expected value '" +
-                expectedValue + "'. " + error, expectedValue, valueCursor.getString(idx));
+                valueCursor.getString(idx) + "'. " + error, expectedValue, valueCursor.getString(idx));
         }
     }
 
     static ContentValues createDummyMovieValues() {
 
         ContentValues movieValues = new ContentValues();
+        movieValues.put(MovieContract.MovieEntry.COL_API_ID, 1);
         movieValues.put(MovieContract.MovieEntry.COL_TITLE, TEST_MOVIE_TITLE);
         movieValues.put(MovieContract.MovieEntry.COL_DESCRIPTION, TEST_MOVIE_DESCRIPTION);
         movieValues.put(MovieContract.MovieEntry.COL_DATE, TEST_MOVIE_DATE);
@@ -71,13 +92,15 @@ public class TestUtilities {
     }
 
     static ContentValues createDummyVideoValues(long movieRowId) {
-        ContentValues weatherValues = new ContentValues();
-        weatherValues.put(MovieContract.VideoEntry.COL_MOVIE_ID, movieRowId);
-        weatherValues.put(MovieContract.VideoEntry.COL_KEY, TEST_VIDEO_KEY);
-        weatherValues.put(MovieContract.VideoEntry.COL_TYPE, TEST_VIDEO_TYPE_CLIP);
-        weatherValues.put(MovieContract.VideoEntry.COL_SITE, TEST_VIDEO_SITE);
 
-        return weatherValues;
+        ContentValues videoValues = new ContentValues();
+        videoValues.put(MovieContract.VideoEntry.COL_API_ID, "1");
+        videoValues.put(MovieContract.VideoEntry.COL_MOVIE_ID, movieRowId);
+        videoValues.put(MovieContract.VideoEntry.COL_KEY, TEST_VIDEO_KEY);
+        videoValues.put(MovieContract.VideoEntry.COL_TYPE, TEST_VIDEO_TYPE_CLIP);
+        videoValues.put(MovieContract.VideoEntry.COL_SITE, TEST_VIDEO_SITE);
+
+        return videoValues;
     }
 
     static ContentValues[] createBulkInsertMovieValues() {
@@ -85,6 +108,7 @@ public class TestUtilities {
 
         for ( int i = 0; i < BULK_INSERT_RECORDS_TO_INSERT; i++ ) {
             ContentValues movieValues = new ContentValues();
+            movieValues.put(MovieContract.MovieEntry.COL_API_ID, i + 1);
             movieValues.put(MovieContract.MovieEntry.COL_TITLE, TEST_MOVIE_TITLE + " " + String.valueOf(i));
             movieValues.put(MovieContract.MovieEntry.COL_DESCRIPTION, TEST_MOVIE_DESCRIPTION);
             movieValues.put(MovieContract.MovieEntry.COL_DATE, TEST_MOVIE_DATE);
@@ -98,6 +122,7 @@ public class TestUtilities {
 
         for ( int i = 0; i < BULK_INSERT_RECORDS_TO_INSERT; i++ ) {
             ContentValues videoValues = new ContentValues();
+            videoValues.put(MovieContract.VideoEntry.COL_API_ID, String.valueOf(i + 1));
             videoValues.put(MovieContract.VideoEntry.COL_MOVIE_ID, movieRowId);
             videoValues.put(MovieContract.VideoEntry.COL_KEY, TEST_VIDEO_KEYS_ARRAY[i]);
             videoValues.put(MovieContract.VideoEntry.COL_TYPE, TEST_VIDEO_TYPE_TRAILER);

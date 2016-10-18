@@ -9,8 +9,11 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class MovieDBHelper extends SQLiteOpenHelper {
 
-    // Version is required to be increased each time the database schema is updated.
-    private static final int DB_VERSION = 2;
+    /*
+     * Version is required(IN PRODUCTION) to be increased each time the database schema is updated.
+     * While the app is in debug mode, is enough to remove data from device.
+     */
+    private static final int DB_VERSION = 1;
 
     static final String DB_NAME = "movie_db";
 
@@ -24,6 +27,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE " + MovieContract.MovieEntry.TABLE_NAME + "(" +
 
             MovieContract.MovieEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            MovieContract.MovieEntry.COL_API_ID + " INTEGER NOT NULL UNIQUE, " +
             MovieContract.MovieEntry.COL_TITLE + " TEXT NOT NULL, " +
             MovieContract.MovieEntry.COL_DESCRIPTION + " TEXT NOT NULL, " +
             MovieContract.MovieEntry.COL_DATE + " TEXT NOT NULL, " +
@@ -36,6 +40,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_VIDEO_TABLE = "CREATE TABLE " + MovieContract.VideoEntry.TABLE_NAME + "(" +
 
             MovieContract.VideoEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            MovieContract.VideoEntry.COL_API_ID + " TEXT NOT NULL UNIQUE, " +
             MovieContract.VideoEntry.COL_MOVIE_ID + " INTEGER NOT NULL, " +
             MovieContract.VideoEntry.COL_KEY + " TEXT NOT NULL, " +
             MovieContract.VideoEntry.COL_TYPE + " TEXT NOT NULL, " +

@@ -37,6 +37,7 @@ public class MovieContract {
         public static final String TABLE_NAME = "movie";
 
         // Database columns name
+        public static final String COL_API_ID = "api_id";
         public static final String COL_TITLE = "title";
         public static final String COL_DESCRIPTION = "overview";
         public static final String COL_DATE = "release_date";
@@ -70,6 +71,7 @@ public class MovieContract {
         public static final String TABLE_NAME = "video";
 
         // Database columns name
+        public static final String COL_API_ID = "api_id";
         public static final String COL_MOVIE_ID = "movie_id";
         public static final String COL_KEY = "video_key";
         public static final String COL_TYPE = "video_type";
