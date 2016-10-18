@@ -121,4 +121,7 @@ public class Movie implements Parcelable {
         dest.writeDouble(voteAverage);
     }
 
+    public String getDateString() {
+        return date;
+    }
 }

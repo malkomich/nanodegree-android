@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
+import static android.database.sqlite.SQLiteDatabase.CONFLICT_IGNORE;
+
 public class MovieProvider extends ContentProvider {
 
     // The URI Matcher used by this content provider.
@@ -142,7 +144,8 @@ public class MovieProvider extends ContentProvider {
         }
 
         if(rowsUpdated > 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
+            getContext().getContentResolver()
+                .notifyChange(uri, null);
         }
         return rowsUpdated;
     }
@@ -168,7 +171,8 @@ public class MovieProvider extends ContentProvider {
         }
 
         if(rowsDeleted > 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
+            getContext().getContentResolver()
+                .notifyChange(uri, null);
         }
         return rowsDeleted;
     }
@@ -184,7 +188,8 @@ public class MovieProvider extends ContentProvider {
                 db.beginTransaction();
                 try {
                     for (ContentValues value : values) {
-                        long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, value);
+                        long _id = db.insertWithOnConflict(
+                            MovieContract.MovieEntry.TABLE_NAME, null, value, CONFLICT_IGNORE);
                         if (_id != -1) {
                             rowsInserted++;
                         }
@@ -198,7 +203,8 @@ public class MovieProvider extends ContentProvider {
                 db.beginTransaction();
                 try {
                     for (ContentValues value : values) {
-                        long _id = db.insert(MovieContract.VideoEntry.TABLE_NAME, null, value);
+                        long _id = db.insertWithOnConflict(
+                            MovieContract.VideoEntry.TABLE_NAME, null, value, CONFLICT_IGNORE);
                         if (_id != -1) {
                             rowsInserted++;
                         }
@@ -212,7 +218,8 @@ public class MovieProvider extends ContentProvider {
                 return super.bulkInsert(uri, values);
         }
 
-        getContext().getContentResolver().notifyChange(uri, null);
+        getContext().getContentResolver()
+            .notifyChange(uri, null);
         return rowsInserted;
     }
 

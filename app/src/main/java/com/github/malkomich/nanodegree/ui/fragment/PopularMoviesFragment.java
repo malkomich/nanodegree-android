@@ -1,12 +1,17 @@
 package com.github.malkomich.nanodegree.ui.fragment;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.Nullable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,8 +29,10 @@ import android.widget.Toast;
 import com.github.malkomich.nanodegree.R;
 import com.github.malkomich.nanodegree.adapter.MovieAdapter;
 import com.github.malkomich.nanodegree.callback.OnMovieSelectedListener;
+import com.github.malkomich.nanodegree.data.database.MovieContract;
 import com.github.malkomich.nanodegree.data.webservice.HttpClientGenerator;
 import com.github.malkomich.nanodegree.data.webservice.MovieService;
+import com.github.malkomich.nanodegree.domain.Movie;
 import com.github.malkomich.nanodegree.domain.MovieResults;
 import com.squareup.picasso.Picasso;
 
@@ -38,13 +45,15 @@ import retrofit2.Response;
 /**
  * Movies fragment containing the grid view of poster images of the popular films.
  */
-public class PopularMoviesFragment extends Fragment implements Callback<MovieResults> {
+public class PopularMoviesFragment extends Fragment implements Callback<MovieResults>,
+    LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = PopularMoviesFragment.class.getName();
+
+    private static final int MOVIE_LOADER = 0;
+
     private static final String PREFS_NAME = "PopularMoviesPrefs";
     private static final String PREFS_ORDER = "order";
-    private static final int PREFS_ORDER_POPULARITY = 0;
-    private static final int PREFS_ORDER_RATE = 1;
 
     private MovieAdapter adapter;
     private OnMovieSelectedListener onMovieSelectedListener;
@@ -57,7 +66,6 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        adapter = new MovieAdapter(getContext());
     }
 
     @Override
@@ -73,11 +81,13 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
             }
         });
 
+        adapter = new MovieAdapter(getContext(), null, 0);
+
         gridView.setAdapter(adapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                onMovieSelectedListener.onMovieSelected(adapter.getItem(position));
+                onMovieSelectedListener.onMovieSelected(null);
             }
         });
         gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -100,6 +110,12 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
     }
 
     @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(MOVIE_LOADER, savedInstanceState, this);
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_popular_movies, menu);
         super.onCreateOptionsMenu(menu,inflater);
@@ -116,10 +132,10 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
         int id = item.getItemId();
         switch (id) {
             case R.id.action_sort_popularity:
-                sortBy(PREFS_ORDER_POPULARITY, true);
+                sortBy(MovieContract.MovieEntry.COL_POPULARITY);
                 return true;
             case R.id.action_sort_rated:
-                sortBy(PREFS_ORDER_RATE, true);
+                sortBy(MovieContract.MovieEntry.COL_VOTE_AVERAGE);
                 return true;
         }
 
@@ -196,28 +212,17 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
     /**
      * Change the appearing order of the movies.
      *
-     * @param order int
-     * @param fromActionsMenu
-     *                      Indicates if the operation requests come from the actions menu or not
+     * @param order Field of movie entity to sort by.
      */
-    private void sortBy(final int order, boolean fromActionsMenu) {
+    private void sortBy(final String order) {
+        // Save order in preferences
+        SharedPreferences preferences = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(PREFS_ORDER, order);
+        editor.apply();
 
-        switch (order) {
-            case PREFS_ORDER_POPULARITY:
-                adapter.sortByPopularity();
-                break;
-            case PREFS_ORDER_RATE:
-                adapter.sortByRate();
-                break;
-        }
-
-        if(fromActionsMenu) {
-            // Save order in preferences
-            SharedPreferences preferences = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putInt(PREFS_ORDER, order);
-            editor.apply();
-        }
+        // Restart loader to apply the new sort order stored on preferences.
+        getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
     }
 
     @Override
@@ -226,11 +231,22 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
         if(response.isSuccessful()) {
             MovieResults results = response.body();
 
-            SharedPreferences preferences = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-            int order = preferences.getInt("order", PREFS_ORDER_POPULARITY);
-
-            adapter.setMovies(results.getMovies());
-            sortBy(order, false);
+            int size = results.getMovies().size();
+            ContentValues[] valuesArray = new ContentValues[size];
+            for(int i=0; i < size; i++) {
+                ContentValues values = new ContentValues();
+                Movie movie = results.getMovies().get(i);
+                values.put(MovieContract.MovieEntry.COL_API_ID, movie.getId());
+                values.put(MovieContract.MovieEntry.COL_TITLE, movie.getTitle());
+                values.put(MovieContract.MovieEntry.COL_DESCRIPTION, movie.getDescription());
+                values.put(MovieContract.MovieEntry.COL_DATE, movie.getDateString());
+                values.put(MovieContract.MovieEntry.COL_POSTER_PATH, movie.getPosterPath());
+                values.put(MovieContract.MovieEntry.COL_POPULARITY, movie.getPopularity());
+                values.put(MovieContract.MovieEntry.COL_VOTE_COUNT, movie.getVoteCount());
+                values.put(MovieContract.MovieEntry.COL_VOTE_AVERAGE, movie.getVoteAverage());
+                valuesArray[i] = values;
+            }
+            getContext().getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, valuesArray);
 
             // Update views
             showGridView(true);
@@ -243,4 +259,31 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
         t.printStackTrace();
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Log.d(TAG, "onCreateLoader");
+        SharedPreferences preferences = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String order = preferences.getString("order", MovieContract.MovieEntry.COL_POPULARITY);
+
+        return new CursorLoader(
+            getContext(),
+            MovieContract.MovieEntry.CONTENT_URI,
+            null,
+            null,
+            null,
+            order + " DESC LIMIT 20"
+        );
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.d(TAG, "onLoadFinished");
+        adapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        Log.d(TAG, "onLoaderReset");
+        adapter.swapCursor(null);
+    }
 }

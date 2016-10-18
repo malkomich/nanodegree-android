@@ -1,6 +1,8 @@
 package com.github.malkomich.nanodegree.adapter;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.support.v4.widget.CursorAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -8,6 +10,7 @@ import android.widget.ImageView;
 
 import com.github.malkomich.nanodegree.R;
 import com.github.malkomich.nanodegree.callback.OnMovieSelectedListener;
+import com.github.malkomich.nanodegree.data.database.MovieContract;
 import com.github.malkomich.nanodegree.domain.Movie;
 import com.squareup.picasso.Picasso;
 
@@ -21,40 +24,25 @@ import static android.widget.ImageView.ScaleType.CENTER_CROP;
 /**
  * Adapter for the movies images, which stores a list of the URLs.
  */
-public class MovieAdapter extends BaseAdapter {
+public class MovieAdapter extends CursorAdapter {
 
-    private final Context context;
-    private List<Movie> movies = new ArrayList<>();
-
-    public MovieAdapter(Context context) {
-        this.context = context;
+    public MovieAdapter(Context context, Cursor c, int flags) {
+        super(context, c, flags);
     }
 
     @Override
-    public int getCount() {
-        return movies.size();
+    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        return new ImageView(context);
     }
 
     @Override
-    public Movie getItem(int position) {
-        return movies.get(position);
-    }
+    public void bindView(View view, Context context, Cursor cursor) {
 
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
+        ImageView imageView = (ImageView) view;
+        imageView.setScaleType(CENTER_CROP);
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ImageView view = (ImageView) convertView;
-        if (view == null) {
-            view = new ImageView(context);
-            view.setScaleType(CENTER_CROP);
-        }
-
-        final Movie movie = getItem(position);
-        String url = movie.getPosterPath();
+        int index = cursor.getColumnIndex(MovieContract.MovieEntry.COL_POSTER_PATH);
+        String url = cursor.getString(index);
 
         // Trigger the download of the URL asynchronously into the image view.
         Picasso.with(context)
@@ -63,36 +51,7 @@ public class MovieAdapter extends BaseAdapter {
             .error(R.drawable.error)
             .fit()
             .tag(context)
-            .into(view);
-
-        return view;
+            .into(imageView);
     }
 
-    public void sortByPopularity() {
-
-        Collections.sort(movies, new Comparator<Movie>() {
-            @Override
-            public int compare(Movie originalMovie, Movie secondMovie) {
-                return originalMovie.getPopularity() < secondMovie.getPopularity()  ? 1 : -1;
-            }
-        });
-
-        notifyDataSetChanged();
-    }
-
-    public void sortByRate() {
-
-        Collections.sort(movies, new Comparator<Movie>() {
-            @Override
-            public int compare(Movie originalMovie, Movie secondMovie) {
-                return originalMovie.getVoteAverage() < secondMovie.getVoteAverage()  ? 1 : -1;
-            }
-        });
-
-        notifyDataSetChanged();
-    }
-
-    public void setMovies(List<Movie> movies) {
-        this.movies = movies;
-    }
 }
