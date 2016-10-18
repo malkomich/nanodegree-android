@@ -48,10 +48,33 @@ import retrofit2.Response;
 public class PopularMoviesFragment extends Fragment implements Callback<MovieResults>,
     LoaderManager.LoaderCallbacks<Cursor> {
 
+    // Index for the projected columns of Movie's table.
+    public static final int COL_MOVIE_ID = 0;
+    public static final int COL_MOVIE_API_ID = 1;
+    public static final int COL_MOVIE_TITLE = 2;
+    public static final int COL_MOVIE_DESCRIPTION = 3;
+    public static final int COL_MOVIE_DATE = 4;
+    public static final int COL_MOVIE_POSTER_PATH = 5;
+    public static final int COL_MOVIE_POPULARITY = 6;
+    public static final int COL_MOVIE_VOTE_COUNT = 7;
+    public static final int COL_MOVIE_VOTE_AVERAGE = 8;
+
+    // Projection for Movie's query.
+    private static final String[] MOVIE_PROJECTION = {
+        MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
+        MovieContract.MovieEntry.COL_API_ID,
+        MovieContract.MovieEntry.COL_TITLE,
+        MovieContract.MovieEntry.COL_DESCRIPTION,
+        MovieContract.MovieEntry.COL_DATE,
+        MovieContract.MovieEntry.COL_POSTER_PATH,
+        MovieContract.MovieEntry.COL_POPULARITY,
+        MovieContract.MovieEntry.COL_VOTE_COUNT,
+        MovieContract.MovieEntry.COL_VOTE_AVERAGE
+    };
+
     private static final String TAG = PopularMoviesFragment.class.getName();
 
     private static final int MOVIE_LOADER = 0;
-
     private static final String PREFS_NAME = "PopularMoviesPrefs";
     private static final String PREFS_ORDER = "order";
 
@@ -268,7 +291,7 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
         return new CursorLoader(
             getContext(),
             MovieContract.MovieEntry.CONTENT_URI,
-            null,
+            MOVIE_PROJECTION,
             null,
             null,
             order + " DESC LIMIT 20"

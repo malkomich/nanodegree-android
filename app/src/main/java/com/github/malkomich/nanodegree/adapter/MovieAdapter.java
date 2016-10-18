@@ -12,6 +12,7 @@ import com.github.malkomich.nanodegree.R;
 import com.github.malkomich.nanodegree.callback.OnMovieSelectedListener;
 import com.github.malkomich.nanodegree.data.database.MovieContract;
 import com.github.malkomich.nanodegree.domain.Movie;
+import com.github.malkomich.nanodegree.ui.fragment.PopularMoviesFragment;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -41,8 +42,7 @@ public class MovieAdapter extends CursorAdapter {
         ImageView imageView = (ImageView) view;
         imageView.setScaleType(CENTER_CROP);
 
-        int index = cursor.getColumnIndex(MovieContract.MovieEntry.COL_POSTER_PATH);
-        String url = cursor.getString(index);
+        String url = cursor.getString(PopularMoviesFragment.COL_MOVIE_POSTER_PATH);
 
         // Trigger the download of the URL asynchronously into the image view.
         Picasso.with(context)
