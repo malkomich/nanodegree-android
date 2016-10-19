@@ -18,4 +18,6 @@
     <string name="movie_trailer_button">Watch the trailer</string>
     <string name="connection_error">Check your network connection</string>
 
+    <string name="provider_permission_label">Movie Provider Permission</string>
+
 </resources>
