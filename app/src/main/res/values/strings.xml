@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:xliff="http://schemas.android.com/tools">
     <string name="app_name" translatable="false">NanoDegree</string>
 
     <string name="button_app_1">Popular Movies</string>
@@ -9,12 +9,14 @@
     <string name="button_app_6" translatable="false">Capstone</string>
 
     <string name="menu_title">My Nanodegree Apps!</string>
-    <string name="button_toast">This button will launch \"%1$s\" app!</string>
+    <string name="button_toast">This button will launch <xliff:g id="appName">\"%1$s\"</xliff:g> app!</string>
     <string name="title_activity_popular_movies">Popular Movies</string>
 
     <string name="action_sort_popularity">Sort by popularity</string>
     <string name="action_sort_rated">Sort by rating</string>
-    <string name="date">%1$d of %2$s of %3$d</string>
+    <string name="date">
+        <xliff:g id="day">%1$d</xliff:g> of <xliff:g id="month">%2$s</xliff:g> of <xliff:g id="year">%3$d</xliff:g>
+    </string>
     <string name="movie_trailer_button">Watch the trailer</string>
     <string name="connection_error">Check your network connection</string>
 
