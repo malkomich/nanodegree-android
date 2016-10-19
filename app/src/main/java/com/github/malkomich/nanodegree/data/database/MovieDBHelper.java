@@ -47,7 +47,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
             MovieContract.VideoEntry.COL_SITE + " TEXT NOT NULL, " +
 
             "FOREIGN KEY (" + MovieContract.VideoEntry.COL_MOVIE_ID + ") REFERENCES " +
-            MovieContract.MovieEntry.TABLE_NAME + "(" + MovieContract.MovieEntry._ID + ") " +
+            MovieContract.MovieEntry.TABLE_NAME + "(" + MovieContract.MovieEntry.COL_API_ID + ") " +
             ");";
 
         db.execSQL(SQL_CREATE_MOVIE_TABLE);

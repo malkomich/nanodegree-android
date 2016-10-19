@@ -8,8 +8,10 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.util.Log;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_IGNORE;
+import static android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE;
 
 public class MovieProvider extends ContentProvider {
 
@@ -18,7 +20,7 @@ public class MovieProvider extends ContentProvider {
     private MovieDBHelper mOpenHelper;
 
     static final int MOVIE = 100;
-    static final int VIDEO = 201;
+    static final int VIDEO = 200;
 
     private static final SQLiteQueryBuilder sVideoByMovieIdQueryBuilder;
 
@@ -27,18 +29,18 @@ public class MovieProvider extends ContentProvider {
 
         // Inner JOIN:
         sVideoByMovieIdQueryBuilder.setTables(
-            MovieContract.VideoEntry.TABLE_NAME + " INNER JOIN " +
-                MovieContract.MovieEntry.TABLE_NAME +
-                " ON " + MovieContract.VideoEntry.TABLE_NAME +
-                "." + MovieContract.VideoEntry.COL_MOVIE_ID +
-                " = " + MovieContract.MovieEntry.TABLE_NAME +
-                "." + MovieContract.MovieEntry._ID);
+            MovieContract.MovieEntry.TABLE_NAME + " LEFT OUTER JOIN " +
+                MovieContract.VideoEntry.TABLE_NAME +
+                " ON " + MovieContract.MovieEntry.TABLE_NAME +
+                "." + MovieContract.MovieEntry.COL_API_ID +
+                " = " + MovieContract.VideoEntry.TABLE_NAME +
+                "." + MovieContract.VideoEntry.COL_MOVIE_ID);
     }
 
     // video.movie_id = ?
     private static final String sMovieIdSelection =
-        MovieContract.VideoEntry.TABLE_NAME+
-            "." + MovieContract.VideoEntry.COL_MOVIE_ID + " = ? ";
+        MovieContract.MovieEntry.TABLE_NAME+
+            "." + MovieContract.MovieEntry._ID + " = ? ";
 
     @Override
     public boolean onCreate() {
@@ -77,7 +79,6 @@ public class MovieProvider extends ContentProvider {
                     sortOrder
                 );
                 break;
-            // movie/#/video
             case VIDEO:
                 responseCursor = getVideosByMovieId(uri, projection, sortOrder);
                 break;
@@ -189,7 +190,7 @@ public class MovieProvider extends ContentProvider {
                 try {
                     for (ContentValues value : values) {
                         long _id = db.insertWithOnConflict(
-                            MovieContract.MovieEntry.TABLE_NAME, null, value, CONFLICT_IGNORE);
+                            MovieContract.MovieEntry.TABLE_NAME, null, value, CONFLICT_REPLACE);
                         if (_id != -1) {
                             rowsInserted++;
                         }
@@ -204,7 +205,7 @@ public class MovieProvider extends ContentProvider {
                 try {
                     for (ContentValues value : values) {
                         long _id = db.insertWithOnConflict(
-                            MovieContract.VideoEntry.TABLE_NAME, null, value, CONFLICT_IGNORE);
+                            MovieContract.VideoEntry.TABLE_NAME, null, value, CONFLICT_REPLACE);
                         if (_id != -1) {
                             rowsInserted++;
                         }

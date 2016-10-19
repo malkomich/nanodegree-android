@@ -28,7 +28,7 @@ import android.widget.Toast;
 
 import com.github.malkomich.nanodegree.R;
 import com.github.malkomich.nanodegree.adapter.MovieAdapter;
-import com.github.malkomich.nanodegree.callback.OnMovieSelectedListener;
+import com.github.malkomich.nanodegree.callback.OnDetailItemSelectedListener;
 import com.github.malkomich.nanodegree.data.database.MovieContract;
 import com.github.malkomich.nanodegree.data.webservice.HttpClientGenerator;
 import com.github.malkomich.nanodegree.data.webservice.MovieService;
@@ -73,13 +73,12 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
     };
 
     private static final String TAG = PopularMoviesFragment.class.getName();
-
     private static final int MOVIE_LOADER = 0;
     private static final String PREFS_NAME = "PopularMoviesPrefs";
     private static final String PREFS_ORDER = "order";
 
     private MovieAdapter adapter;
-    private OnMovieSelectedListener onMovieSelectedListener;
+    private OnDetailItemSelectedListener onMovieSelectedListener;
 
     @BindView(R.id.refreshSwiper) protected SwipeRefreshLayout refreshSwiper;
     @BindView(R.id.grid_view) protected GridView gridView;
@@ -109,8 +108,9 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
         gridView.setAdapter(adapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                onMovieSelectedListener.onMovieSelected(null);
+            public void onItemClick(AdapterView parent, View view, int position, long id) {
+                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+                onMovieSelectedListener.onItemSelected(cursor);
             }
         });
         gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -123,11 +123,6 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
                 refreshSwiper.setEnabled(gridView.getChildCount() > 0 && gridView.getChildAt(0).getTop() == 0);
             }
         });
-
-        // Call async task after creating grid view, if necessary
-        if(adapter == null || adapter.isEmpty()) {
-            refreshData();
-        }
 
         return view;
     }
@@ -175,7 +170,7 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
         // This makes sure that the container activity has implemented
         // the callback interface. If not, it throws an exception
         try {
-            onMovieSelectedListener = (OnMovieSelectedListener) context;
+            onMovieSelectedListener = (OnDetailItemSelectedListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnPlaceUpdatedListener");
         }
@@ -302,6 +297,10 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         Log.d(TAG, "onLoadFinished");
         adapter.swapCursor(data);
+
+        if(adapter.isEmpty()) {
+            refreshData();
+        }
     }
 
     @Override

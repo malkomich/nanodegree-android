@@ -5,25 +5,16 @@ import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 import com.github.malkomich.nanodegree.R;
-import com.github.malkomich.nanodegree.callback.OnMovieSelectedListener;
-import com.github.malkomich.nanodegree.data.database.MovieContract;
-import com.github.malkomich.nanodegree.domain.Movie;
 import com.github.malkomich.nanodegree.ui.fragment.PopularMoviesFragment;
 import com.squareup.picasso.Picasso;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 import static android.widget.ImageView.ScaleType.CENTER_CROP;
 
 /**
- * Adapter for the movies images, which stores a list of the URLs.
+ * Adapter for the movies images.
  */
 public class MovieAdapter extends CursorAdapter {
 

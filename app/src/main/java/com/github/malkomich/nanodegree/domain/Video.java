@@ -15,12 +15,16 @@ import org.json.JSONObject;
 public class Video implements Parcelable {
 
     public static final String SITE_YOUTUBE = "YouTube";
-    private static final String YOUTUBE_BASE_PATH = "https://www.youtube.com/watch?";
+    public static final String YOUTUBE_BASE_PATH = "https://www.youtube.com/watch?";
 
+    private static final String ID = "id";
     private static final String KEY = "key";
     private static final String TYPE = "type";
     private static final String SITE = "site";
 
+    @SerializedName(ID)
+    @Expose
+    private String id;
     @SerializedName(KEY)
     @Expose
     private String key;
@@ -30,6 +34,13 @@ public class Video implements Parcelable {
     @SerializedName(SITE)
     @Expose
     private String site;
+
+    public Video(String id, String key, String type, String site) {
+        this.id = id;
+        this.key = key;
+        this.type = type;
+        this.site = site;
+    }
 
     private Video(Parcel in) {
         key = in.readString();
@@ -56,6 +67,10 @@ public class Video implements Parcelable {
             .build();
     }
 
+    public String getId() {
+        return id;
+    }
+
     public String getKey() {
         return key;
     }
@@ -80,7 +95,7 @@ public class Video implements Parcelable {
         dest.writeString(site);
     }
 
-    enum VideoType {
+    public enum VideoType {
         TRAILER("Trailer"),
         TEASER("Teaser"),
         CLIP("Clip"),
@@ -105,6 +120,10 @@ public class Video implements Parcelable {
                 default:
                     return null;
             }
+        }
+
+        public String getName() {
+            return name;
         }
     }
 }

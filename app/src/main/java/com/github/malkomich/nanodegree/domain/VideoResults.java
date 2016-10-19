@@ -42,6 +42,10 @@ public class VideoResults implements Parcelable {
         }
     };
 
+    public int getMovieId() {
+        return movieId;
+    }
+
     public List<Video> getVideos() {
         return videos;
     }
