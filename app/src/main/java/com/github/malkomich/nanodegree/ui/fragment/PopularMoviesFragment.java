@@ -76,9 +76,11 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
     private static final int MOVIE_LOADER = 0;
     private static final String PREFS_NAME = "PopularMoviesPrefs";
     private static final String PREFS_ORDER = "order";
+    private static final String SELECTED_KEY = "selected_position";
 
     private MovieAdapter adapter;
     private OnDetailItemSelectedListener onMovieSelectedListener;
+    private int mPosition;
 
     @BindView(R.id.refreshSwiper) protected SwipeRefreshLayout refreshSwiper;
     @BindView(R.id.grid_view) protected GridView gridView;
@@ -111,6 +113,7 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
             public void onItemClick(AdapterView parent, View view, int position, long id) {
                 Cursor cursor = (Cursor) parent.getItemAtPosition(position);
                 onMovieSelectedListener.onItemSelected(cursor);
+                mPosition = position;
             }
         });
         gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -123,6 +126,11 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
                 refreshSwiper.setEnabled(gridView.getChildCount() > 0 && gridView.getChildAt(0).getTop() == 0);
             }
         });
+
+        // Restore item position selected on the grid view.
+        if(savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+            mPosition = savedInstanceState.getInt(SELECTED_KEY);
+        }
 
         return view;
     }
@@ -137,6 +145,14 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_popular_movies, menu);
         super.onCreateOptionsMenu(menu,inflater);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if(mPosition != GridView.INVALID_POSITION) {
+            outState.putInt(SELECTED_KEY, mPosition);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -301,6 +317,10 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
         int i = adapter.getCount();
         if(adapter.isEmpty()) {
             refreshData();
+        }
+
+        if(mPosition != GridView.INVALID_POSITION) {
+            gridView.smoothScrollToPosition(mPosition);
         }
     }
 
