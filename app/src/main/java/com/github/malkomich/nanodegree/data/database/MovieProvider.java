@@ -221,6 +221,12 @@ public class MovieProvider extends ContentProvider {
                     db.setTransactionSuccessful();
                 } finally {
                     db.endTransaction();
+                    // Notify the Uri of the movie & video tables union.
+                    if(rowsInserted > 0) {
+                        long movieId = values[0].getAsLong(MovieContract.VideoEntry.COL_MOVIE_ID);
+                        getContext().getContentResolver()
+                            .notifyChange(MovieContract.MovieEntry.buildMovieAndVideosWithMovieId(movieId), null);
+                    }
                 }
                 break;
             default:
