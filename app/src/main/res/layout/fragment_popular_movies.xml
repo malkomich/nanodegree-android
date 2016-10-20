@@ -20,7 +20,8 @@
             android:numColumns="@integer/column_count"
             android:scrollbarStyle="insideOverlay"
             android:scrollbars="none"
-            android:listSelector="@null"/>
+            android:listSelector="@null"
+            android:choiceMode="singleChoice"/>
 
         <include layout="@layout/empty_view"/>
 

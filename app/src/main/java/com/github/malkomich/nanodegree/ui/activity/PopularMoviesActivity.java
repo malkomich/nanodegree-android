@@ -3,6 +3,7 @@ package com.github.malkomich.nanodegree.ui.activity;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.github.malkomich.nanodegree.R;
@@ -14,7 +15,8 @@ import com.github.malkomich.nanodegree.ui.fragment.PopularMoviesFragment;
 /**
  * Popular movies app activity.
  */
-public class PopularMoviesActivity extends AppCompatActivity implements OnDetailItemSelectedListener {
+public class PopularMoviesActivity extends AppCompatActivity implements OnDetailItemSelectedListener,
+    FragmentManager.OnBackStackChangedListener {
 
     private static final String TAG = PopularMoviesActivity.class.getName();
 
@@ -45,6 +47,9 @@ public class PopularMoviesActivity extends AppCompatActivity implements OnDetail
                 .add(R.id.fragment_container, gridFragment)
                 .commit();
         }
+
+        // Add listener for back stack changes in the fragment manager.
+        getSupportFragmentManager().addOnBackStackChangedListener(this);
     }
 
     @Override
@@ -73,5 +78,20 @@ public class PopularMoviesActivity extends AppCompatActivity implements OnDetail
                 .addToBackStack(null)
                 .commit();
         }
+    }
+
+    @Override
+    public void onBackStackChanged() {
+        // Enable Up button if there are entries in the back stack.
+        boolean enableUp = getSupportFragmentManager().getBackStackEntryCount() > 0;
+        getSupportActionBar().setDisplayHomeAsUpEnabled(enableUp);
+        getSupportActionBar().setDisplayUseLogoEnabled(!enableUp);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        // Called when the up button is pressed.
+        getSupportFragmentManager().popBackStack();
+        return true;
     }
 }
