@@ -43,7 +43,7 @@ import retrofit2.Response;
 public class MovieDetailsFragment extends Fragment implements Callback<VideoResults>,
     LoaderManager.LoaderCallbacks<Cursor> {
 
-    public static final String URI = "uri";
+    public static final String DETAILS_URI = "uri";
 
     // Index for the projected columns of Movie's table.
     public static final int COL_MOVIE_ID = 0;
@@ -60,6 +60,9 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
     public static final int COL_VIDEO_KEY = 11;
     public static final int COL_VIDEO_TYPE = 12;
     public static final int COL_VIDEO_SITE = 13;
+
+    private static final String TAG = MovieDetailsFragment.class.getName();
+    private static final int DETAILS_LOADER = 1;
 
     // Projection for Movie's query.
     private static final String[] DETAILS_PROJECTION = {
@@ -79,9 +82,6 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
         MovieContract.VideoEntry.COL_SITE,
     };
 
-    private static final String TAG = MovieDetailsFragment.class.getName();
-    private static final int DETAILS_LOADER = 1;
-
     private Uri mUri;
 
     @BindView(R.id.movie_image) protected ImageView imageView;
@@ -100,8 +100,13 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        if (savedInstanceState != null) {
-            mUri = savedInstanceState.getParcelable(URI);
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            mUri = arguments.getParcelable(DETAILS_URI);
+        }
+
+        if(savedInstanceState != null && savedInstanceState.containsKey(DETAILS_URI)) {
+            mUri = (Uri) savedInstanceState.get(DETAILS_URI);
         }
 
         View view = inflater.inflate(R.layout.fragment_movie_details, container, false);
@@ -110,20 +115,28 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
     }
 
     public void updateMovie(Bundle args) {
-        getLoaderManager().restartLoader(DETAILS_LOADER, args, this);
+        mUri = args.getParcelable(DETAILS_URI);
+
+        LoaderManager manager = getLoaderManager();
+        if(manager.getLoader(DETAILS_LOADER) == null) {
+            manager.initLoader(DETAILS_LOADER, args, this);
+        } else {
+            manager.restartLoader(DETAILS_LOADER, args, this);
+        }
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(DETAILS_LOADER, getArguments(), this);
+        if(mUri != null) {
+            getLoaderManager().initLoader(DETAILS_LOADER, null, this);
+        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
-        outState.putParcelable(URI, mUri);
+        outState.putParcelable(DETAILS_URI, mUri);
     }
 
     @Override
@@ -156,12 +169,6 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-
-        if(args == null || !args.containsKey(URI)) {
-            return null;
-        }
-
-        mUri = args.getParcelable(URI);
         return new CursorLoader(
             getContext(),
             mUri,
@@ -176,37 +183,6 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if(data != null) {
             updateUI(data);
-        }
-    }
-
-    private void updateTrailerUI(Cursor data) {
-
-        // Temporal solution for a unique video
-        Video trailer = null;
-
-        for(int i = 0; i < data.getCount(); i++, data.moveToNext()) {
-            if("Trailer".equals(data.getString(COL_VIDEO_TYPE)) &&
-                    "YouTube".equals(data.getString(COL_VIDEO_SITE))) {
-                trailer = new Video(
-                    data.getString(COL_VIDEO_API_ID),
-                    data.getString(COL_VIDEO_KEY),
-                    data.getString(COL_VIDEO_TYPE),
-                    data.getString(COL_VIDEO_SITE)
-                );
-            }
-        }
-
-        final Uri trailerLink = trailer != null ? trailer.getUri() : null;
-        if(trailerLink != null) {
-            trailerButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, trailerLink));
-                }
-            });
-            Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
-            trailerButton.setVisibility(View.VISIBLE);
-            trailerButton.setAnimation(anim);
         }
     }
 
@@ -230,6 +206,9 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
         service.getMovieVideos(movieId, apiKey).enqueue(this);
     }
 
+    /*
+     * Update movie details UI components.
+     */
     private void updateUI(Cursor data) {
 
         Log.d(TAG, "updateUI() --> Cursor.getCount(): " + data.getCount());
@@ -262,12 +241,47 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
             date.getYear())
         );
 
+        trailerButton.setVisibility(View.GONE);
+
         if(data.getString(COL_VIDEO_KEY) != null) {
             updateTrailerUI(data);
         } else {
             refreshData(data.getLong(COL_MOVIE_API_ID));
         }
+    }
 
+    /*
+     * Update UI elements on the videos section.
+     */
+    private void updateTrailerUI(Cursor data) {
+
+        // Temporal solution for a unique video
+        Video trailer = null;
+
+        for(int i = 0; i < data.getCount(); i++, data.moveToNext()) {
+            if("Trailer".equals(data.getString(COL_VIDEO_TYPE)) &&
+                "YouTube".equals(data.getString(COL_VIDEO_SITE))) {
+                trailer = new Video(
+                    data.getString(COL_VIDEO_API_ID),
+                    data.getString(COL_VIDEO_KEY),
+                    data.getString(COL_VIDEO_TYPE),
+                    data.getString(COL_VIDEO_SITE)
+                );
+            }
+        }
+
+        final Uri trailerLink = trailer != null ? trailer.getUri() : null;
+        if(trailerLink != null) {
+            trailerButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, trailerLink));
+                }
+            });
+            Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
+            trailerButton.setVisibility(View.VISIBLE);
+            trailerButton.setAnimation(anim);
+        }
     }
 
 }
