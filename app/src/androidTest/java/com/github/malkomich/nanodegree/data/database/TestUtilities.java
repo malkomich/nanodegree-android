@@ -74,9 +74,9 @@ public class TestUtilities {
             int idx = valueCursor.getColumnIndex(columnName);
             assertFalse("Column '" + columnName + "' not found. " + error, idx == -1);
             String expectedValue = entry.getValue().toString();
-            assertEquals("Value '" + entry.getValue().toString() +
+            assertEquals("Value '" + valueCursor.getString(idx) +
                 "' did not match the expected value '" +
-                valueCursor.getString(idx) + "'. " + error, expectedValue, valueCursor.getString(idx));
+                expectedValue + "'. " + error, expectedValue, valueCursor.getString(idx));
         }
     }
 

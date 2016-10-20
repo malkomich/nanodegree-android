@@ -10,7 +10,6 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.util.Log;
 
-import static android.database.sqlite.SQLiteDatabase.CONFLICT_IGNORE;
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE;
 
 public class MovieProvider extends ContentProvider {
@@ -20,21 +19,27 @@ public class MovieProvider extends ContentProvider {
     private MovieDBHelper mOpenHelper;
 
     static final int MOVIE = 100;
+    static final int MOVIE_WITH_VIDEO = 101;
     static final int VIDEO = 200;
 
-    private static final SQLiteQueryBuilder sVideoByMovieIdQueryBuilder;
+    private static final SQLiteQueryBuilder sVideoJoinMovieQueryBuilder;
+    private static final SQLiteQueryBuilder sMovieJoinVideoQueryBuilder;
 
     static {
-        sVideoByMovieIdQueryBuilder = new SQLiteQueryBuilder();
+        sVideoJoinMovieQueryBuilder = new SQLiteQueryBuilder();
+        sMovieJoinVideoQueryBuilder = new SQLiteQueryBuilder();
 
-        // Inner JOIN:
-        sVideoByMovieIdQueryBuilder.setTables(
-            MovieContract.MovieEntry.TABLE_NAME + " LEFT OUTER JOIN " +
-                MovieContract.VideoEntry.TABLE_NAME +
-                " ON " + MovieContract.MovieEntry.TABLE_NAME +
-                "." + MovieContract.MovieEntry.COL_API_ID +
-                " = " + MovieContract.VideoEntry.TABLE_NAME +
-                "." + MovieContract.VideoEntry.COL_MOVIE_ID);
+        sVideoJoinMovieQueryBuilder.setTables(
+            MovieContract.VideoEntry.TABLE_NAME + " LEFT OUTER JOIN " + MovieContract.MovieEntry.TABLE_NAME +
+                " ON "  + MovieContract.VideoEntry.TABLE_NAME    + "." + MovieContract.VideoEntry.COL_MOVIE_ID  +
+                " = "   + MovieContract.MovieEntry.TABLE_NAME    + "." + MovieContract.MovieEntry._ID
+        );
+
+        sMovieJoinVideoQueryBuilder.setTables(
+            MovieContract.MovieEntry.TABLE_NAME + " LEFT OUTER JOIN " + MovieContract.VideoEntry.TABLE_NAME +
+                " ON "  + MovieContract.MovieEntry.TABLE_NAME    + "." + MovieContract.MovieEntry._ID  +
+                " = "   + MovieContract.VideoEntry.TABLE_NAME    + "." + MovieContract.VideoEntry.COL_MOVIE_ID
+        );
     }
 
     // video.movie_id = ?
@@ -78,6 +83,9 @@ public class MovieProvider extends ContentProvider {
                     null,
                     sortOrder
                 );
+                break;
+            case MOVIE_WITH_VIDEO:
+                responseCursor = getMoviesAndVideosByMovieId(uri, projection, sortOrder);
                 break;
             case VIDEO:
                 responseCursor = getVideosByMovieId(uri, projection, sortOrder);
@@ -233,13 +241,15 @@ public class MovieProvider extends ContentProvider {
 
         // For each type of URI you want to add, create a corresponding code.
         matcher.addURI(authority, MovieContract.PATH_MOVIE, MOVIE);
+        matcher.addURI(authority, MovieContract.PATH_MOVIE + "/#/" + MovieContract.PATH_VIDEO, MOVIE_WITH_VIDEO);
         matcher.addURI(authority, MovieContract.PATH_VIDEO, VIDEO);
         return matcher;
     }
 
     private Cursor getVideosByMovieId(Uri uri, String[] projection, String sortOrder) {
         long movieId = MovieContract.VideoEntry.getMovieIdFromUri(uri);
-        return sVideoByMovieIdQueryBuilder.query(
+
+        return sVideoJoinMovieQueryBuilder.query(
             mOpenHelper.getReadableDatabase(),
             projection,
             sMovieIdSelection,
@@ -248,5 +258,43 @@ public class MovieProvider extends ContentProvider {
             null,
             sortOrder
         );
+    }
+
+    private Cursor getMoviesAndVideosByMovieId(Uri uri, String[] projection, String sortOrder) {
+        long movieId = MovieContract.MovieEntry.getMovieIdFromUri(uri);
+
+        String query1 = sVideoJoinMovieQueryBuilder.buildQuery(
+            projection,
+            sMovieIdSelection,
+            null,
+            null,
+            null,
+            null
+        );
+        Log.d("PROVIDER", "query1: " + query1);
+        String query2 = sMovieJoinVideoQueryBuilder.buildQuery(
+            projection,
+            sMovieIdSelection,
+            null,
+            null,
+            null,
+            null
+        );
+        Log.d("PROVIDER", "query2: " + query2);
+
+        SQLiteQueryBuilder finalBuilder = new SQLiteQueryBuilder();
+        finalBuilder.setDistinct(true);
+        String finalQuery = finalBuilder.buildUnionQuery(
+            new String[]{query1, query2},
+            sortOrder,
+            null
+        );
+        Log.d("PROVIDER", "finalQuery: " + finalQuery);
+
+        return mOpenHelper.getReadableDatabase()
+            .rawQuery(
+                finalQuery,
+                new String[]{Long.toString(movieId), Long.toString(movieId)}
+            );
     }
 }

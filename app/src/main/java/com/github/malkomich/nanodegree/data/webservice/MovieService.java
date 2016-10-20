@@ -55,6 +55,6 @@ public interface MovieService {
 
     @GET(RES_VIDEOS)
     Call<VideoResults> getMovieVideos(
-        @Path("movie_id") int movieId,
+        @Path("movie_id") long movieId,
         @Query(API_KEY_PARAM) String apiKey);
 }

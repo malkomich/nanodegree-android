@@ -298,6 +298,7 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
         Log.d(TAG, "onLoadFinished");
         adapter.swapCursor(data);
 
+        int i = adapter.getCount();
         if(adapter.isEmpty()) {
             refreshData();
         }

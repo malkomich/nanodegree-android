@@ -132,13 +132,15 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
         if(response.isSuccessful()) {
             VideoResults videoResults = response.body();
 
+            long movieId = MovieContract.MovieEntry.getMovieIdFromUri(mUri);
+
             int size = videoResults.getVideos().size();
             ContentValues[] valuesArray = new ContentValues[size];
             for(int i=0; i < size; i++) {
                 ContentValues values = new ContentValues();
                 Video video = videoResults.getVideos().get(i);
                 values.put(MovieContract.VideoEntry.COL_API_ID, video.getId());
-                values.put(MovieContract.VideoEntry.COL_MOVIE_ID, videoResults.getMovieId());
+                values.put(MovieContract.VideoEntry.COL_MOVIE_ID, movieId);
                 values.put(MovieContract.VideoEntry.COL_KEY, video.getKey());
                 values.put(MovieContract.VideoEntry.COL_TYPE, video.getType().getName());
                 values.put(MovieContract.VideoEntry.COL_SITE, video.getSite());
@@ -159,10 +161,10 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
             return null;
         }
 
-        Uri uri = args.getParcelable(URI);
+        mUri = args.getParcelable(URI);
         return new CursorLoader(
             getContext(),
-            uri,
+            mUri,
             DETAILS_PROJECTION,
             null,
             null,
@@ -172,7 +174,7 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if(loader.isStarted()) {
+        if(data != null) {
             updateUI(data);
         }
     }
@@ -182,7 +184,7 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
         // Temporal solution for a unique video
         Video trailer = null;
 
-        for(int i = 0; i < data.getCount(); i++, data.moveToFirst()) {
+        for(int i = 0; i < data.getCount(); i++, data.moveToNext()) {
             if("Trailer".equals(data.getString(COL_VIDEO_TYPE)) &&
                     "YouTube".equals(data.getString(COL_VIDEO_SITE))) {
                 trailer = new Video(
@@ -215,7 +217,7 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
     /**
      * Refresh details of movie from web service.
      */
-    private void refreshData(int movieId) {
+    private void refreshData(long movieId) {
 
         String apiKey = getString(R.string.tmdbApiKey);
 
@@ -263,7 +265,7 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
         if(data.getString(COL_VIDEO_KEY) != null) {
             updateTrailerUI(data);
         } else {
-            refreshData(data.getInt(COL_MOVIE_API_ID));
+            refreshData(data.getLong(COL_MOVIE_API_ID));
         }
 
     }

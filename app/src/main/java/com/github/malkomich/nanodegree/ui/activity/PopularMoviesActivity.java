@@ -4,7 +4,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
 import com.github.malkomich.nanodegree.R;
 import com.github.malkomich.nanodegree.callback.OnDetailItemSelectedListener;
@@ -54,8 +53,8 @@ public class PopularMoviesActivity extends AppCompatActivity implements OnDetail
         MovieDetailsFragment detailsFragment = (MovieDetailsFragment)
             getSupportFragmentManager().findFragmentById(R.id.movie_details_fragment);
 
-        Uri detailsUri = MovieContract.VideoEntry.
-            buildVideoUriWithMovieId(cursor.getLong(PopularMoviesFragment.COL_MOVIE_ID));
+        Uri detailsUri = MovieContract.MovieEntry.
+            buildMovieAndVideosWithMovieId(cursor.getLong(PopularMoviesFragment.COL_MOVIE_ID));
 
         Bundle args = new Bundle();
         args.putParcelable(MovieDetailsFragment.URI, detailsUri);

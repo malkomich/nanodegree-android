@@ -10,6 +10,7 @@ import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -31,6 +32,11 @@ public class MovieProviderTest {
     @BeforeClass
     public static void init() {
         mContext = InstrumentationRegistry.getTargetContext();
+    }
+
+    @AfterClass
+    public static void finish() {
+        deleteAllRecords();
     }
 
     @Before
@@ -335,7 +341,7 @@ public class MovieProviderTest {
         cursor.close();
     }
 
-    private void deleteAllRecords() {
+    private static void deleteAllRecords() {
 
         mContext.getContentResolver().delete(
             MovieContract.VideoEntry.CONTENT_URI,
