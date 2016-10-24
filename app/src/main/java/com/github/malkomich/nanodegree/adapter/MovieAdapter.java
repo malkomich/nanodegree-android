@@ -3,6 +3,7 @@ package com.github.malkomich.nanodegree.adapter;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -24,14 +25,16 @@ public class MovieAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        return new ImageView(context);
+        View view = LayoutInflater.from(context).inflate(R.layout.popular_movie_item, parent, false);
+        ViewHolder viewHolder = new ViewHolder(view);
+        view.setTag(viewHolder);
+        return view;
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
 
-        ImageView imageView = (ImageView) view;
-        imageView.setScaleType(CENTER_CROP);
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         String url = cursor.getString(PopularMoviesFragment.COL_MOVIE_POSTER_PATH);
 
@@ -42,7 +45,15 @@ public class MovieAdapter extends CursorAdapter {
             .error(R.drawable.error)
             .fit()
             .tag(context)
-            .into(imageView);
+            .into(viewHolder.imageView);
+    }
+
+    public static class ViewHolder {
+        public final ImageView imageView;
+
+        public ViewHolder(View view) {
+            imageView = (ImageView) view.findViewById(R.id.popular_movie_image);
+        }
     }
 
 }
