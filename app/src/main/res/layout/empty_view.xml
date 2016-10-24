@@ -22,7 +22,7 @@
         android:layout_marginTop="@dimen/margin_large"
         android:text="@string/connection_error"
         android:textColor="@color/textColorWarning"
-        android:textSize="@dimen/text_size_default"
+        android:textSize="@dimen/text_size_small"
         android:layout_below="@id/connection_error_image"/>
 
 </RelativeLayout>
