@@ -30,7 +30,7 @@ public class MovieProvider extends ContentProvider {
         sMovieJoinVideoQueryBuilder = new SQLiteQueryBuilder();
 
         sVideoJoinMovieQueryBuilder.setTables(
-            MovieContract.VideoEntry.TABLE_NAME + " LEFT OUTER JOIN " + MovieContract.MovieEntry.TABLE_NAME +
+            MovieContract.VideoEntry.TABLE_NAME + " LEFT OUTER JOIN "  + MovieContract.MovieEntry.TABLE_NAME +
                 " ON "  + MovieContract.VideoEntry.TABLE_NAME    + "." + MovieContract.VideoEntry.COL_MOVIE_ID  +
                 " = "   + MovieContract.MovieEntry.TABLE_NAME    + "." + MovieContract.MovieEntry._ID
         );
@@ -42,7 +42,7 @@ public class MovieProvider extends ContentProvider {
         );
     }
 
-    // video.movie_id = ?
+    // movie._id = ?
     private static final String sMovieIdSelection =
         MovieContract.MovieEntry.TABLE_NAME+
             "." + MovieContract.MovieEntry._ID + " = ? ";
@@ -277,7 +277,6 @@ public class MovieProvider extends ContentProvider {
             null,
             null
         );
-        Log.d("PROVIDER", "query1: " + query1);
         String query2 = sMovieJoinVideoQueryBuilder.buildQuery(
             projection,
             sMovieIdSelection,
@@ -286,7 +285,6 @@ public class MovieProvider extends ContentProvider {
             null,
             null
         );
-        Log.d("PROVIDER", "query2: " + query2);
 
         SQLiteQueryBuilder finalBuilder = new SQLiteQueryBuilder();
         finalBuilder.setDistinct(true);

@@ -12,8 +12,6 @@ import com.github.malkomich.nanodegree.R;
 import com.github.malkomich.nanodegree.ui.fragment.PopularMoviesFragment;
 import com.squareup.picasso.Picasso;
 
-import static android.widget.ImageView.ScaleType.CENTER_CROP;
-
 /**
  * Adapter for the movies images.
  */

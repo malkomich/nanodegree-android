@@ -21,5 +21,8 @@
     <string name="connection_error">Check your network connection</string>
 
     <string name="provider_permission_label">Movie Provider Permission</string>
+    <string name="video_site_invalid">
+        Video from <xliff:g id="videoSite">%1$s</xliff:g> cannot be reproduced
+    </string>
 
 </resources>

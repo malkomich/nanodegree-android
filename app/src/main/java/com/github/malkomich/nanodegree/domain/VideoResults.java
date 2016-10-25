@@ -50,15 +50,6 @@ public class VideoResults implements Parcelable {
         return videos;
     }
 
-    public Uri getTrailerLink() {
-        for(Video video : videos) {
-            if(Video.VideoType.TRAILER.equals(video.getType()) && Video.SITE_YOUTUBE.equals(video.getSite())) {
-                return video.getUri();
-            }
-        }
-        return null;
-    }
-
     @Override
     public int describeContents() {
         return 0;

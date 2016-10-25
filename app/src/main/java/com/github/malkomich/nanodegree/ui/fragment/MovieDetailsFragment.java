@@ -16,11 +16,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.malkomich.nanodegree.R;
+import com.github.malkomich.nanodegree.adapter.VideoAdapter;
 import com.github.malkomich.nanodegree.data.database.MovieContract;
 import com.github.malkomich.nanodegree.data.webservice.HttpClientGenerator;
 import com.github.malkomich.nanodegree.domain.Video;
@@ -66,7 +70,7 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
 
     // Projection for Movie's query.
     private static final String[] DETAILS_PROJECTION = {
-        MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
+        MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID + " AS movieId",
         MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry.COL_API_ID,
         MovieContract.MovieEntry.COL_TITLE,
         MovieContract.MovieEntry.COL_DESCRIPTION,
@@ -83,6 +87,7 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
     };
 
     private Uri mUri;
+    private VideoAdapter videoAdapter;
 
     @BindView(R.id.movie_image) protected ImageView imageView;
     @BindView(R.id.movie_title) protected TextView titleView;
@@ -90,7 +95,7 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
     @BindView(R.id.movie_popularity) protected TextView popularityView;
     @BindView(R.id.movie_rate) protected TextView rateView;
     @BindView(R.id.movie_date) protected TextView dateView;
-    @BindView(R.id.movie_trailer_button) protected Button trailerButton;
+    @BindView(R.id.trailer_list) protected ListView trailerListView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -99,6 +104,26 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        View view = inflater.inflate(R.layout.fragment_movie_details, container, false);
+        ButterKnife.bind(this, view);
+
+        videoAdapter = new VideoAdapter(getContext(), null, 0);
+        trailerListView.setAdapter(videoAdapter);
+        trailerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView parent, View view, int position, long id) {
+                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+                String site = cursor.getString(COL_VIDEO_SITE);
+                if(Video.SITE_YOUTUBE.equals(site)) {
+                    String key = cursor.getString(COL_VIDEO_KEY);
+                    startActivity(new Intent(Intent.ACTION_VIEW, Video.getUri(key)));
+                } else {
+                    Toast.makeText(getContext(), getString(R.string.video_site_invalid, site), Toast.LENGTH_SHORT)
+                        .show();
+                }
+            }
+        });
 
         Bundle arguments = getArguments();
         if (arguments != null) {
@@ -109,8 +134,6 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
             mUri = (Uri) savedInstanceState.get(DETAILS_URI);
         }
 
-        View view = inflater.inflate(R.layout.fragment_movie_details, container, false);
-        ButterKnife.bind(this, view);
         return view;
     }
 
@@ -181,6 +204,7 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.d(TAG, "onLoadFinished");
         if(data != null) {
             updateUI(data);
         }
@@ -188,6 +212,8 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+        Log.d(TAG, "onLoaderReset");
+        videoAdapter.swapCursor(null);
     }
 
     /**
@@ -215,73 +241,39 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
         if(!data.moveToFirst()) {
             return;
         }
-        String key = data.getString(COL_VIDEO_KEY);
 
-        String posterPath = data.getString(COL_MOVIE_POSTER_PATH);
-        String title = data.getString(COL_MOVIE_TITLE);
-        String description = data.getString(COL_MOVIE_DESCRIPTION);
-        String dateString = data.getString(COL_MOVIE_DATE);
-        double popularity = data.getDouble(COL_MOVIE_POPULARITY);
-        double voteAverage = data.getDouble(COL_MOVIE_VOTE_AVERAGE);
+        if(titleView.getText() == null || titleView.getText().length() == 0) {
+            String title = data.getString(COL_MOVIE_TITLE);
+            String posterPath = data.getString(COL_MOVIE_POSTER_PATH);
+            String description = data.getString(COL_MOVIE_DESCRIPTION);
+            String dateString = data.getString(COL_MOVIE_DATE);
+            double popularity = data.getDouble(COL_MOVIE_POPULARITY);
+            double voteAverage = data.getDouble(COL_MOVIE_VOTE_AVERAGE);
 
-        Picasso.with(getContext()).load(posterPath).into(imageView);
-        titleView.setText(title);
-        descriptionView.setText(description);
-        popularityView.setText(
-            String.valueOf(MathUtils.roundDouble(popularity, 2))
-        );
-        rateView.setText(
-            String.valueOf(MathUtils.roundDouble(voteAverage, 2))
-        );
+            titleView.setText(title);
+            Picasso.with(getContext()).load(posterPath).into(imageView);
+            descriptionView.setText(description);
+            popularityView.setText(
+                String.valueOf(MathUtils.roundDouble(popularity, 2))
+            );
+            rateView.setText(
+                String.valueOf(MathUtils.roundDouble(voteAverage, 2))
+            );
 
-        LocalDate date = new LocalDate(dateString);
-        dateView.setText(getString(R.string.date,
-            date.getDayOfMonth(),
-            date.toString("MMMM"),
-            date.getYear())
-        );
-
-        trailerButton.setVisibility(View.GONE);
-
-        if(data.getString(COL_VIDEO_KEY) != null) {
-            updateTrailerUI(data);
-        } else {
-            refreshData(data.getLong(COL_MOVIE_API_ID));
-        }
-    }
-
-    /*
-     * Update UI elements on the videos section.
-     */
-    private void updateTrailerUI(Cursor data) {
-
-        // Temporal solution for a unique video
-        Video trailer = null;
-
-        for(int i = 0; i < data.getCount(); i++, data.moveToNext()) {
-            if("Trailer".equals(data.getString(COL_VIDEO_TYPE)) &&
-                "YouTube".equals(data.getString(COL_VIDEO_SITE))) {
-                trailer = new Video(
-                    data.getString(COL_VIDEO_API_ID),
-                    data.getString(COL_VIDEO_KEY),
-                    data.getString(COL_VIDEO_TYPE),
-                    data.getString(COL_VIDEO_SITE)
-                );
-            }
+            LocalDate date = new LocalDate(dateString);
+            dateView.setText(getString(R.string.date,
+                date.getDayOfMonth(),
+                date.toString("MMMM"),
+                date.getYear())
+            );
         }
 
-        final Uri trailerLink = trailer != null ? trailer.getUri() : null;
-        if(trailerLink != null) {
-            trailerButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, trailerLink));
-                }
-            });
-            Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
-            trailerButton.setVisibility(View.VISIBLE);
-            trailerButton.setAnimation(anim);
-        }
+        // FIXING...
+//        if(data.getString(COL_VIDEO_KEY) != null) {
+//            videoAdapter.swapCursor(data);
+//        } else {
+//            refreshData(data.getLong(COL_MOVIE_API_ID));
+//        }
     }
 
 }

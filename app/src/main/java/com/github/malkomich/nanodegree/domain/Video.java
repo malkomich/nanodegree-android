@@ -60,7 +60,7 @@ public class Video implements Parcelable {
         }
     };
 
-    public Uri getUri() {
+    public static Uri getUri(String key) {
         return Uri.parse(YOUTUBE_BASE_PATH)
             .buildUpon()
             .appendQueryParameter("v", key)
