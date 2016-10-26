@@ -13,7 +13,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
      * Version is required(IN PRODUCTION) to be increased each time the database schema is updated.
      * While the app is in debug mode, is enough to remove data from device.
      */
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
 
     static final String DB_NAME = "movie_db";
 
@@ -50,8 +50,22 @@ public class MovieDBHelper extends SQLiteOpenHelper {
             MovieContract.MovieEntry.TABLE_NAME + "(" + MovieContract.MovieEntry._ID + ") " +
             ");";
 
+        final String SQL_CREATE_REVIEW_TABLE = "CREATE TABLE " + MovieContract.ReviewEntry.TABLE_NAME + "(" +
+
+            MovieContract.ReviewEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            MovieContract.ReviewEntry.COL_API_ID + " TEXT NOT NULL UNIQUE, " +
+            MovieContract.ReviewEntry.COL_MOVIE_ID + " INTEGER NOT NULL, " +
+            MovieContract.ReviewEntry.COL_AUTHOR + " TEXT NOT NULL, " +
+            MovieContract.ReviewEntry.COL_CONTENT + " TEXT NOT NULL, " +
+            MovieContract.ReviewEntry.COL_URL + " TEXT, " +
+
+            "FOREIGN KEY (" + MovieContract.ReviewEntry.COL_MOVIE_ID + ") REFERENCES " +
+            MovieContract.MovieEntry.TABLE_NAME + "(" + MovieContract.MovieEntry._ID + ") " +
+            ");";
+
         db.execSQL(SQL_CREATE_MOVIE_TABLE);
         db.execSQL(SQL_CREATE_VIDEO_TABLE);
+        db.execSQL(SQL_CREATE_REVIEW_TABLE);
     }
 
     @Override
@@ -59,9 +73,11 @@ public class MovieDBHelper extends SQLiteOpenHelper {
 
         final String SQL_DROP_MOVIE_TABLE = "DROP TABLE IF EXISTS " + MovieContract.MovieEntry.TABLE_NAME;
         final String SQL_DROP_VIDEO_TABLE = "DROP TABLE IF EXISTS " + MovieContract.VideoEntry.TABLE_NAME;
+        final String SQL_DROP_REVIEW_TABLE = "DROP TABLE IF EXISTS " + MovieContract.ReviewEntry.TABLE_NAME;
 
         db.execSQL(SQL_DROP_MOVIE_TABLE);
         db.execSQL(SQL_DROP_VIDEO_TABLE);
+        db.execSQL(SQL_DROP_REVIEW_TABLE);
         onCreate(db);
     }
 }

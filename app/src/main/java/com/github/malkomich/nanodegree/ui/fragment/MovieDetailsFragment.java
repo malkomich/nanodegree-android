@@ -14,10 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -27,6 +24,7 @@ import com.github.malkomich.nanodegree.R;
 import com.github.malkomich.nanodegree.adapter.VideoAdapter;
 import com.github.malkomich.nanodegree.data.database.MovieContract;
 import com.github.malkomich.nanodegree.data.webservice.HttpClientGenerator;
+import com.github.malkomich.nanodegree.domain.Movie;
 import com.github.malkomich.nanodegree.domain.Video;
 import com.github.malkomich.nanodegree.util.MathUtils;
 import com.github.malkomich.nanodegree.data.webservice.MovieService;
@@ -44,7 +42,7 @@ import retrofit2.Response;
 /**
  * Movie details view.
  */
-public class MovieDetailsFragment extends Fragment implements Callback<VideoResults>,
+public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
     LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String DETAILS_URI = "uri";
@@ -67,6 +65,7 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
 
     private static final String TAG = MovieDetailsFragment.class.getName();
     private static final int DETAILS_LOADER = 1;
+    private static final String APPENDED_RESOURCES = "videos,reviews";
 
     // Projection for Movie's query.
     private static final String[] DETAILS_PROJECTION = {
@@ -142,9 +141,9 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
 
         LoaderManager manager = getLoaderManager();
         if(manager.getLoader(DETAILS_LOADER) == null) {
-            manager.initLoader(DETAILS_LOADER, args, this);
+            manager.initLoader(DETAILS_LOADER, null, this);
         } else {
-            manager.restartLoader(DETAILS_LOADER, args, this);
+            manager.restartLoader(DETAILS_LOADER, null, this);
         }
     }
 
@@ -163,10 +162,11 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
     }
 
     @Override
-    public void onResponse(Call<VideoResults> call, Response<VideoResults> response) {
+    public void onResponse(Call<Movie> call, Response<Movie> response) {
 
         if(response.isSuccessful()) {
-            VideoResults videoResults = response.body();
+            Movie movie = response.body();
+            VideoResults videoResults = movie.getVideoResults();
 
             long movieId = MovieContract.MovieEntry.getMovieIdFromUri(mUri);
 
@@ -187,7 +187,7 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
     }
 
     @Override
-    public void onFailure(Call<VideoResults> call, Throwable t) {
+    public void onFailure(Call<Movie> call, Throwable t) {
     }
 
     @Override
@@ -229,7 +229,7 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
             MovieService.BASE_URL
         );
 
-        service.getMovieVideos(movieId, apiKey).enqueue(this);
+        service.getMovieDetails(movieId, apiKey, APPENDED_RESOURCES).enqueue(this);
     }
 
     /*
@@ -268,12 +268,11 @@ public class MovieDetailsFragment extends Fragment implements Callback<VideoResu
             );
         }
 
-        // FIXING...
-//        if(data.getString(COL_VIDEO_KEY) != null) {
-//            videoAdapter.swapCursor(data);
-//        } else {
-//            refreshData(data.getLong(COL_MOVIE_API_ID));
-//        }
+        if(data.getString(COL_VIDEO_KEY) != null) {
+            videoAdapter.swapCursor(data);
+        } else {
+            refreshData(data.getLong(COL_MOVIE_API_ID));
+        }
     }
 
 }

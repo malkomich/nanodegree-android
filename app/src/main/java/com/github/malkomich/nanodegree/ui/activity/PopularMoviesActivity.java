@@ -59,7 +59,7 @@ public class PopularMoviesActivity extends AppCompatActivity implements OnDetail
             getSupportFragmentManager().findFragmentById(R.id.movie_details_fragment);
 
         Uri detailsUri = MovieContract.MovieEntry.
-            buildMovieAndVideosWithMovieId(cursor.getLong(PopularMoviesFragment.COL_MOVIE_ID));
+            buildMovieDetailsWithMovieId(cursor.getLong(PopularMoviesFragment.COL_MOVIE_ID));
 
         Bundle args = new Bundle();
         args.putParcelable(MovieDetailsFragment.DETAILS_URI, detailsUri);

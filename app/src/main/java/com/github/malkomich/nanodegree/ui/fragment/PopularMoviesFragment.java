@@ -80,6 +80,7 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
 
     private MovieAdapter adapter;
     private OnDetailItemSelectedListener onMovieSelectedListener;
+    // Item position in the grid view for the auto scroll
     private int mPosition;
 
     @BindView(R.id.refreshSwiper) protected SwipeRefreshLayout refreshSwiper;

@@ -23,6 +23,8 @@ public class Movie implements Parcelable {
     private static final String POPULARITY = "popularity";
     private static final String VOTE_COUNT = "vote_count";
     private static final String VOTE_AVERAGE = "vote_average";
+    private static final String VIDEOS = "videos";
+    private static final String REVIEWS = "reviews";
 
     @SerializedName(ID)
     @Expose
@@ -48,8 +50,15 @@ public class Movie implements Parcelable {
     @SerializedName(VOTE_AVERAGE)
     @Expose
     private double voteAverage;
+    @SerializedName(VIDEOS)
+    @Expose
+    private VideoResults videoResults;
+    @SerializedName(REVIEWS)
+    @Expose
+    private ReviewResults reviewResults;
 
-    private Movie(Parcel in) {
+
+    protected Movie(Parcel in) {
         id = in.readInt();
         title = in.readString();
         description = in.readString();
@@ -58,6 +67,8 @@ public class Movie implements Parcelable {
         popularity = in.readDouble();
         voteCount = in.readInt();
         voteAverage = in.readDouble();
+        videoResults = in.readParcelable(VideoResults.class.getClassLoader());
+        reviewResults = in.readParcelable(ReviewResults.class.getClassLoader());
     }
 
     public static final Creator<Movie> CREATOR = new Creator<Movie>() {
@@ -104,6 +115,14 @@ public class Movie implements Parcelable {
         return voteAverage;
     }
 
+    public VideoResults getVideoResults() {
+        return videoResults;
+    }
+
+    public ReviewResults getReviewResults() {
+        return reviewResults;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -119,6 +138,8 @@ public class Movie implements Parcelable {
         dest.writeDouble(popularity);
         dest.writeInt(voteCount);
         dest.writeDouble(voteAverage);
+        dest.writeParcelable(videoResults, flags);
+        dest.writeParcelable(reviewResults, flags);
     }
 
     public String getDateString() {
