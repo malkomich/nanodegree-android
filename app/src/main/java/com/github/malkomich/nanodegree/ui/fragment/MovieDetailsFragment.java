@@ -1,7 +1,6 @@
 package com.github.malkomich.nanodegree.ui.fragment;
 
 import android.content.ContentValues;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,17 +9,17 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.malkomich.nanodegree.R;
+import com.github.malkomich.nanodegree.adapter.ReviewAdapter;
 import com.github.malkomich.nanodegree.adapter.VideoAdapter;
 import com.github.malkomich.nanodegree.data.database.MovieContract;
 import com.github.malkomich.nanodegree.data.webservice.HttpClientGenerator;
@@ -62,6 +61,11 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
     public static final int COL_VIDEO_KEY = 11;
     public static final int COL_VIDEO_TYPE = 12;
     public static final int COL_VIDEO_SITE = 13;
+    public static final int COL_REVIEW_ID = 14;
+    public static final int COL_REVIEW_API_ID = 15;
+    public static final int COL_REVIEW_AUTHOR = 16;
+    public static final int COL_REVIEW_CONTENT = 17;
+    public static final int COL_REVIEW_URL = 18;
 
     private static final String TAG = MovieDetailsFragment.class.getName();
     private static final int DETAILS_LOADER = 1;
@@ -83,10 +87,16 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
         MovieContract.VideoEntry.COL_KEY,
         MovieContract.VideoEntry.COL_TYPE,
         MovieContract.VideoEntry.COL_SITE,
+        MovieContract.ReviewEntry.TABLE_NAME + "." + MovieContract.ReviewEntry._ID,
+        MovieContract.ReviewEntry.TABLE_NAME + "." + MovieContract.ReviewEntry.COL_API_ID,
+        MovieContract.ReviewEntry.COL_AUTHOR,
+        MovieContract.ReviewEntry.COL_CONTENT,
+        MovieContract.ReviewEntry.COL_URL
     };
 
     private Uri mUri;
     private VideoAdapter videoAdapter;
+    private ReviewAdapter reviewAdapter;
 
     @BindView(R.id.movie_image) protected ImageView imageView;
     @BindView(R.id.movie_title) protected TextView titleView;
@@ -94,7 +104,8 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
     @BindView(R.id.movie_popularity) protected TextView popularityView;
     @BindView(R.id.movie_rate) protected TextView rateView;
     @BindView(R.id.movie_date) protected TextView dateView;
-    @BindView(R.id.trailer_list) protected ListView trailerListView;
+    @BindView(R.id.trailer_list) protected RecyclerView trailerList;
+    @BindView(R.id.review_list) protected RecyclerView reviewList;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -107,22 +118,13 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
         View view = inflater.inflate(R.layout.fragment_movie_details, container, false);
         ButterKnife.bind(this, view);
 
-        videoAdapter = new VideoAdapter(getContext(), null, 0);
-        trailerListView.setAdapter(videoAdapter);
-        trailerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView parent, View view, int position, long id) {
-                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
-                String site = cursor.getString(COL_VIDEO_SITE);
-                if(Video.SITE_YOUTUBE.equals(site)) {
-                    String key = cursor.getString(COL_VIDEO_KEY);
-                    startActivity(new Intent(Intent.ACTION_VIEW, Video.getUri(key)));
-                } else {
-                    Toast.makeText(getContext(), getString(R.string.video_site_invalid, site), Toast.LENGTH_SHORT)
-                        .show();
-                }
-            }
-        });
+        videoAdapter = new VideoAdapter(getContext());
+        trailerList.setLayoutManager(new LinearLayoutManager(getContext()));
+        trailerList.setAdapter(videoAdapter);
+
+        reviewAdapter = new ReviewAdapter(getContext());
+        reviewList.setLayoutManager(new LinearLayoutManager(getContext()));
+        reviewList.setAdapter(reviewAdapter);
 
         Bundle arguments = getArguments();
         if (arguments != null) {
@@ -183,6 +185,7 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
                 valuesArray[i] = values;
             }
             getContext().getContentResolver().bulkInsert(MovieContract.VideoEntry.CONTENT_URI, valuesArray);
+            getLoaderManager().restartLoader(DETAILS_LOADER, null, this);
         }
     }
 
@@ -198,13 +201,16 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
             DETAILS_PROJECTION,
             null,
             null,
-            MovieContract.VideoEntry.COL_TYPE
+            null
         );
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         Log.d(TAG, "onLoadFinished");
+        videoAdapter.swapCursor(data);
+        reviewAdapter.swapCursor(data);
+
         if(data != null) {
             updateUI(data);
         }
@@ -214,6 +220,7 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
     public void onLoaderReset(Loader<Cursor> loader) {
         Log.d(TAG, "onLoaderReset");
         videoAdapter.swapCursor(null);
+        reviewAdapter.swapCursor(null);
     }
 
     /**
@@ -237,40 +244,35 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
      */
     private void updateUI(Cursor data) {
 
-        Log.d(TAG, "updateUI() --> Cursor.getCount(): " + data.getCount());
         if(!data.moveToFirst()) {
             return;
         }
 
-        if(titleView.getText() == null || titleView.getText().length() == 0) {
-            String title = data.getString(COL_MOVIE_TITLE);
-            String posterPath = data.getString(COL_MOVIE_POSTER_PATH);
-            String description = data.getString(COL_MOVIE_DESCRIPTION);
-            String dateString = data.getString(COL_MOVIE_DATE);
-            double popularity = data.getDouble(COL_MOVIE_POPULARITY);
-            double voteAverage = data.getDouble(COL_MOVIE_VOTE_AVERAGE);
+        String title = data.getString(COL_MOVIE_TITLE);
+        String posterPath = data.getString(COL_MOVIE_POSTER_PATH);
+        String description = data.getString(COL_MOVIE_DESCRIPTION);
+        String dateString = data.getString(COL_MOVIE_DATE);
+        double popularity = data.getDouble(COL_MOVIE_POPULARITY);
+        double voteAverage = data.getDouble(COL_MOVIE_VOTE_AVERAGE);
 
-            titleView.setText(title);
-            Picasso.with(getContext()).load(posterPath).into(imageView);
-            descriptionView.setText(description);
-            popularityView.setText(
-                String.valueOf(MathUtils.roundDouble(popularity, 2))
-            );
-            rateView.setText(
-                String.valueOf(MathUtils.roundDouble(voteAverage, 2))
-            );
+        titleView.setText(title);
+        Picasso.with(getContext()).load(posterPath).into(imageView);
+        descriptionView.setText(description);
+        popularityView.setText(
+            String.valueOf(MathUtils.roundDouble(popularity, 2))
+        );
+        rateView.setText(
+            String.valueOf(MathUtils.roundDouble(voteAverage, 2))
+        );
 
-            LocalDate date = new LocalDate(dateString);
-            dateView.setText(getString(R.string.date,
-                date.getDayOfMonth(),
-                date.toString("MMMM"),
-                date.getYear())
-            );
-        }
+        LocalDate date = new LocalDate(dateString);
+        dateView.setText(getString(R.string.date,
+            date.getDayOfMonth(),
+            date.toString("MMMM"),
+            date.getYear())
+        );
 
-        if(data.getString(COL_VIDEO_KEY) != null) {
-            videoAdapter.swapCursor(data);
-        } else {
+        if(data.getString(COL_VIDEO_KEY) == null) {
             refreshData(data.getLong(COL_MOVIE_API_ID));
         }
     }

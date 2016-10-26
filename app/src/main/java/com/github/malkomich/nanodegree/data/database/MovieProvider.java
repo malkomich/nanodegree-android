@@ -237,12 +237,6 @@ public class MovieProvider extends ContentProvider {
                     db.setTransactionSuccessful();
                 } finally {
                     db.endTransaction();
-                    // Notify the Uri of the movie & video tables union.
-                    if(rowsInserted > 0) {
-                        long movieId = values[0].getAsLong(MovieContract.VideoEntry.COL_MOVIE_ID);
-                        getContext().getContentResolver()
-                            .notifyChange(MovieContract.MovieEntry.buildMovieDetailsWithMovieId(movieId), null);
-                    }
                 }
                 break;
             case REVIEW:
@@ -309,7 +303,7 @@ public class MovieProvider extends ContentProvider {
             if(join != null) {
                 stringBuilder.append(" LEFT OUTER JOIN ")
                     .append(join)
-                    .append(" = " +  MovieContract.VideoEntry.TABLE_NAME + "." + MovieContract.VideoEntry.COL_MOVIE_ID);
+                    .append(" = " +  MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID);
             }
         }
         sMovieDetailsQueryBuilder.setTables(stringBuilder.toString());

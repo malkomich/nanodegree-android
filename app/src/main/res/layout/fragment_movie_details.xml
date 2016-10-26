@@ -140,12 +140,24 @@
                 android:layout_marginTop="@dimen/margin_medium"
                 android:layout_marginBottom="@dimen/margin_medium"/>
 
-            <ListView
+            <android.support.v7.widget.RecyclerView
                 android:id="@+id/trailer_list"
+                android:scrollbars="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:dividerHeight="1dp"
-                android:divider="@color/colorShadow"/>
+                android:layout_height="wrap_content"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@android:color/black"
+                android:layout_marginTop="@dimen/margin_medium"
+                android:layout_marginBottom="@dimen/margin_medium"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/review_list"
+                android:scrollbars="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
         </LinearLayout>
 
