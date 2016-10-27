@@ -88,7 +88,7 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
 
     @BindView(R.id.refreshSwiper) protected SwipeRefreshLayout refreshSwiper;
     @BindView(R.id.grid_view) protected GridView gridView;
-    @BindView(R.id.empty_view_layout) protected RelativeLayout errorView;
+    @BindView(R.id.empty_view_layout) protected RelativeLayout emptyView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -238,11 +238,7 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
         } else {
             refreshSwiper.setRefreshing(false);
 
-            if (adapter == null || adapter.isEmpty()) {
-                showGridView(false);
-            } else {
-                Toast.makeText(getContext(), getString(R.string.connection_error), Toast.LENGTH_SHORT).show();
-            }
+            Toast.makeText(getContext(), getString(R.string.connection_error), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -253,9 +249,9 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
      */
     private void showGridView(boolean gridViewVisible) {
         int gridViewVisibility = gridViewVisible ? View.VISIBLE : View.GONE;
-        int errorViewVisibility = gridViewVisible ? View.GONE : View.VISIBLE;
+        int emptyViewVisibility = gridViewVisible ? View.GONE : View.VISIBLE;
         gridView.setVisibility(gridViewVisibility);
-        errorView.setVisibility(errorViewVisibility);
+        emptyView.setVisibility(emptyViewVisibility);
     }
 
     /**
@@ -298,7 +294,6 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
             getContext().getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, valuesArray);
 
             // Update views
-            showGridView(true);
             refreshSwiper.setRefreshing(false);
         }
     }
@@ -336,6 +331,8 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         Log.d(TAG, "onLoadFinished");
         adapter.swapCursor(data);
+
+        showGridView(!adapter.isEmpty());
 
         if(adapter.isEmpty() && !mUpdated) {
             refreshData();

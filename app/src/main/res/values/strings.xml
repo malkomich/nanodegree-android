@@ -29,9 +29,10 @@
 
     <!-- Error labels -->
     <string name="network_error">Check your network connection</string>
+    <string name="no_movies_error">Sorry, there are no movies</string>
 
     <!-- Image content descriptions -->
-    <string name="desc_network_error_image">Network error icon</string>
+    <string name="desc_no_movies_error_image">Network error icon</string>
     <string name="desc_select_image">Select action icon</string>
     <string name="desc_movie_image">Movie image scalable</string>
     <string name="desc_star_icon">Star icon</string>
