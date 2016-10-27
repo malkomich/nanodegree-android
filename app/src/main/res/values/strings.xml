@@ -17,6 +17,7 @@
     <string name="title_activity_popular_movies">Popular Movies</string>
     <string name="action_sort_popularity">Sort by popularity</string>
     <string name="action_sort_rated">Sort by rating</string>
+    <string name="action_filter_favorites">Filter favorite movies</string>
     <string name="date">
         <xliff:g id="day">%1$d</xliff:g> of <xliff:g id="month">%2$s</xliff:g> of <xliff:g id="year">%3$d</xliff:g>
     </string>

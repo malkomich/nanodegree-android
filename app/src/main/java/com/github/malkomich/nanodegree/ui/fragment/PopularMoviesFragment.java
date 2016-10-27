@@ -69,7 +69,8 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
         MovieContract.MovieEntry.COL_POSTER_PATH,
         MovieContract.MovieEntry.COL_POPULARITY,
         MovieContract.MovieEntry.COL_VOTE_COUNT,
-        MovieContract.MovieEntry.COL_VOTE_AVERAGE
+        MovieContract.MovieEntry.COL_VOTE_AVERAGE,
+        MovieContract.MovieEntry.COL_FAVORITE
     };
 
     private static final String TAG = PopularMoviesFragment.class.getName();
@@ -77,11 +78,13 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
     private static final String PREFS_NAME = "PopularMoviesPrefs";
     private static final String PREFS_ORDER = "order";
     private static final String SELECTED_KEY = "selected_position";
+    private static final String FILTER_FAVORITES = "filter_favorites";
 
     private MovieAdapter adapter;
     private OnDetailItemSelectedListener onMovieSelectedListener;
     // Item position in the grid view for the auto scroll
     private int mPosition = GridView.INVALID_POSITION;
+    private boolean mUpdated = false;
 
     @BindView(R.id.refreshSwiper) protected SwipeRefreshLayout refreshSwiper;
     @BindView(R.id.grid_view) protected GridView gridView;
@@ -177,6 +180,11 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
                 return true;
             case R.id.action_sort_rated:
                 sortBy(MovieContract.MovieEntry.COL_VOTE_AVERAGE);
+                return true;
+            case R.id.action_filter_favorites:
+                Bundle args = new Bundle();
+                args.putBoolean(FILTER_FAVORITES, true);
+                getLoaderManager().restartLoader(MOVIE_LOADER, args, this);
                 return true;
         }
 
@@ -306,13 +314,21 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
         SharedPreferences preferences = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         String order = preferences.getString("order", MovieContract.MovieEntry.COL_POPULARITY);
 
+        String selection = null;
+        String[] selectionArgs = null;
+        String sortOrder = order + " DESC LIMIT 20";
+        if(args != null && (boolean) args.get(FILTER_FAVORITES)) {
+            selection = MovieContract.MovieEntry.COL_FAVORITE + "=?";
+            selectionArgs = new String[]{"1"};
+            sortOrder = null;
+        }
         return new CursorLoader(
             getContext(),
             MovieContract.MovieEntry.CONTENT_URI,
             MOVIE_PROJECTION,
-            null,
-            null,
-            order + " DESC LIMIT 20"
+            selection,
+            selectionArgs,
+            sortOrder
         );
     }
 
@@ -321,9 +337,10 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
         Log.d(TAG, "onLoadFinished");
         adapter.swapCursor(data);
 
-        if(adapter.isEmpty()) {
+        if(adapter.isEmpty() && !mUpdated) {
             refreshData();
         }
+        mUpdated = true;
 
         if(mPosition != GridView.INVALID_POSITION) {
             gridView.smoothScrollToPosition(mPosition);
