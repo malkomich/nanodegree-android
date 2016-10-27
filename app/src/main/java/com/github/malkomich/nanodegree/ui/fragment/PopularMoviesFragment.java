@@ -77,6 +77,7 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
     private static final int MOVIE_LOADER = 0;
     private static final String PREFS_NAME = "PopularMoviesPrefs";
     private static final String PREFS_ORDER = "order";
+    private static final String PREFS_FAVORITE = "favorites";
     private static final String SELECTED_KEY = "selected_position";
     private static final String FILTER_FAVORITES = "filter_favorites";
 
@@ -182,9 +183,9 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
                 sortBy(MovieContract.MovieEntry.COL_VOTE_AVERAGE);
                 return true;
             case R.id.action_filter_favorites:
-                Bundle args = new Bundle();
-                args.putBoolean(FILTER_FAVORITES, true);
-                getLoaderManager().restartLoader(MOVIE_LOADER, args, this);
+                boolean checked = item.isChecked();
+                item.setChecked(!checked);
+                swapFavorites(!checked);
                 return true;
         }
 
@@ -270,6 +271,22 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
         getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
     }
 
+    /**
+     * Enable or disable filtering of the favorite movies.
+     *
+     * @param favorites boolean
+     */
+    private void swapFavorites(boolean favorites) {
+        // Save order in preferences
+        SharedPreferences preferences = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(PREFS_FAVORITE, favorites);
+        editor.apply();
+
+        // Restart loader to apply the new sort order stored on preferences.
+        getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
+    }
+
     @Override
     public void onResponse(Call<MovieResults> call, Response<MovieResults> response) {
 
@@ -307,15 +324,16 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.d(TAG, "onCreateLoader");
         SharedPreferences preferences = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String order = preferences.getString("order", MovieContract.MovieEntry.COL_POPULARITY);
+        String order = preferences.getString(PREFS_ORDER, MovieContract.MovieEntry.COL_POPULARITY);
+        boolean favorite = preferences.getBoolean(PREFS_FAVORITE, false);
 
         String selection = null;
         String[] selectionArgs = null;
         String sortOrder = order + " DESC LIMIT 20";
-        if(args != null && (boolean) args.get(FILTER_FAVORITES)) {
+        if(favorite) {
             selection = MovieContract.MovieEntry.COL_FAVORITE + "=?";
             selectionArgs = new String[]{"1"};
-            sortOrder = null;
+            sortOrder = order + " DESC";
         }
         return new CursorLoader(
             getContext(),
