@@ -24,6 +24,8 @@ import com.github.malkomich.nanodegree.adapter.VideoAdapter;
 import com.github.malkomich.nanodegree.data.database.MovieContract;
 import com.github.malkomich.nanodegree.data.webservice.HttpClientGenerator;
 import com.github.malkomich.nanodegree.domain.Movie;
+import com.github.malkomich.nanodegree.domain.Review;
+import com.github.malkomich.nanodegree.domain.ReviewResults;
 import com.github.malkomich.nanodegree.domain.Video;
 import com.github.malkomich.nanodegree.util.MathUtils;
 import com.github.malkomich.nanodegree.data.webservice.MovieService;
@@ -44,7 +46,8 @@ import retrofit2.Response;
 public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
     LoaderManager.LoaderCallbacks<Cursor> {
 
-    public static final String DETAILS_URI = "uri";
+    public static final String DETAILS_VIDEO_URI = "video_uri";
+    public static final String DETAILS_REVIEW_URI = "review_uri";
 
     // Index for the projected columns of Movie's table.
     public static final int COL_MOVIE_ID = 0;
@@ -56,23 +59,26 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
     public static final int COL_MOVIE_POPULARITY = 6;
     public static final int COL_MOVIE_VOTE_COUNT = 7;
     public static final int COL_MOVIE_VOTE_AVERAGE = 8;
+
     public static final int COL_VIDEO_ID = 9;
     public static final int COL_VIDEO_API_ID = 10;
     public static final int COL_VIDEO_KEY = 11;
     public static final int COL_VIDEO_TYPE = 12;
     public static final int COL_VIDEO_SITE = 13;
-    public static final int COL_REVIEW_ID = 14;
-    public static final int COL_REVIEW_API_ID = 15;
-    public static final int COL_REVIEW_AUTHOR = 16;
-    public static final int COL_REVIEW_CONTENT = 17;
-    public static final int COL_REVIEW_URL = 18;
+
+    public static final int COL_REVIEW_ID = 9;
+    public static final int COL_REVIEW_API_ID = 10;
+    public static final int COL_REVIEW_AUTHOR = 11;
+    public static final int COL_REVIEW_CONTENT = 12;
+    public static final int COL_REVIEW_URL = 13;
 
     private static final String TAG = MovieDetailsFragment.class.getName();
-    private static final int DETAILS_LOADER = 1;
+    private static final int DETAILS_VIDEO_LOADER = 1;
+    private static final int DETAILS_REVIEW_LOADER = 2;
     private static final String APPENDED_RESOURCES = "videos,reviews";
 
-    // Projection for Movie's query.
-    private static final String[] DETAILS_PROJECTION = {
+    // Projections for Movie's query.
+    private static final String[] DETAILS_VIDEO_PROJECTION = {
         MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID + " AS movieId",
         MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry.COL_API_ID,
         MovieContract.MovieEntry.COL_TITLE,
@@ -87,6 +93,17 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
         MovieContract.VideoEntry.COL_KEY,
         MovieContract.VideoEntry.COL_TYPE,
         MovieContract.VideoEntry.COL_SITE,
+    };
+    private static final String[] DETAILS_REVIEW_PROJECTION = {
+        MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID + " AS movieId",
+        MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry.COL_API_ID,
+        MovieContract.MovieEntry.COL_TITLE,
+        MovieContract.MovieEntry.COL_DESCRIPTION,
+        MovieContract.MovieEntry.COL_DATE,
+        MovieContract.MovieEntry.COL_POSTER_PATH,
+        MovieContract.MovieEntry.COL_POPULARITY,
+        MovieContract.MovieEntry.COL_VOTE_COUNT,
+        MovieContract.MovieEntry.COL_VOTE_AVERAGE,
         MovieContract.ReviewEntry.TABLE_NAME + "." + MovieContract.ReviewEntry._ID,
         MovieContract.ReviewEntry.TABLE_NAME + "." + MovieContract.ReviewEntry.COL_API_ID,
         MovieContract.ReviewEntry.COL_AUTHOR,
@@ -94,9 +111,11 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
         MovieContract.ReviewEntry.COL_URL
     };
 
-    private Uri mUri;
+    private Uri mVideoUri;
+    private Uri mReviewUri;
     private VideoAdapter videoAdapter;
     private ReviewAdapter reviewAdapter;
+    private boolean isUpdated;
 
     @BindView(R.id.movie_image) protected ImageView imageView;
     @BindView(R.id.movie_title) protected TextView titleView;
@@ -110,6 +129,7 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        isUpdated = false;
     }
 
     @Override
@@ -128,39 +148,58 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
 
         Bundle arguments = getArguments();
         if (arguments != null) {
-            mUri = arguments.getParcelable(DETAILS_URI);
+            mVideoUri = arguments.getParcelable(DETAILS_VIDEO_URI);
+            mReviewUri = arguments.getParcelable(DETAILS_REVIEW_URI);
         }
 
-        if(savedInstanceState != null && savedInstanceState.containsKey(DETAILS_URI)) {
-            mUri = (Uri) savedInstanceState.get(DETAILS_URI);
+        if(savedInstanceState != null) {
+            if(savedInstanceState.containsKey(DETAILS_VIDEO_URI)) {
+                mVideoUri = (Uri) savedInstanceState.get(DETAILS_VIDEO_URI);
+            }
+            if(savedInstanceState.containsKey(DETAILS_REVIEW_URI)) {
+                mReviewUri = (Uri) savedInstanceState.get(DETAILS_REVIEW_URI);
+            }
         }
 
         return view;
     }
 
     public void updateMovie(Bundle args) {
-        mUri = args.getParcelable(DETAILS_URI);
+        isUpdated = false;
+
+        mVideoUri = args.getParcelable(DETAILS_VIDEO_URI);
+        mReviewUri = args.getParcelable(DETAILS_REVIEW_URI);
 
         LoaderManager manager = getLoaderManager();
-        if(manager.getLoader(DETAILS_LOADER) == null) {
-            manager.initLoader(DETAILS_LOADER, null, this);
+        if(manager.getLoader(DETAILS_VIDEO_LOADER) == null) {
+            manager.initLoader(DETAILS_VIDEO_LOADER, null, this);
         } else {
-            manager.restartLoader(DETAILS_LOADER, null, this);
+            manager.restartLoader(DETAILS_VIDEO_LOADER, null, this);
+        }
+
+        if(manager.getLoader(DETAILS_REVIEW_LOADER) == null) {
+            manager.initLoader(DETAILS_REVIEW_LOADER, null, this);
+        } else {
+            manager.restartLoader(DETAILS_REVIEW_LOADER, null, this);
         }
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if(mUri != null) {
-            getLoaderManager().initLoader(DETAILS_LOADER, null, this);
+        if(mVideoUri != null) {
+            getLoaderManager().initLoader(DETAILS_VIDEO_LOADER, null, this);
+        }
+        if(mReviewUri != null) {
+            getLoaderManager().initLoader(DETAILS_REVIEW_LOADER, null, this);
         }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(DETAILS_URI, mUri);
+        outState.putParcelable(DETAILS_VIDEO_URI, mVideoUri);
+        outState.putParcelable(DETAILS_REVIEW_URI, mReviewUri);
     }
 
     @Override
@@ -168,13 +207,13 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
 
         if(response.isSuccessful()) {
             Movie movie = response.body();
+            long movieId = MovieContract.MovieEntry.getMovieIdFromUri(mVideoUri);
+
+            // Persist video items in DB
             VideoResults videoResults = movie.getVideoResults();
-
-            long movieId = MovieContract.MovieEntry.getMovieIdFromUri(mUri);
-
             int size = videoResults.getVideos().size();
-            ContentValues[] valuesArray = new ContentValues[size];
-            for(int i=0; i < size; i++) {
+            ContentValues[] videoValues = new ContentValues[size];
+            for(int i = 0; i < size; i++) {
                 ContentValues values = new ContentValues();
                 Video video = videoResults.getVideos().get(i);
                 values.put(MovieContract.VideoEntry.COL_API_ID, video.getId());
@@ -182,10 +221,28 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
                 values.put(MovieContract.VideoEntry.COL_KEY, video.getKey());
                 values.put(MovieContract.VideoEntry.COL_TYPE, video.getType().getName());
                 values.put(MovieContract.VideoEntry.COL_SITE, video.getSite());
-                valuesArray[i] = values;
+                videoValues[i] = values;
             }
-            getContext().getContentResolver().bulkInsert(MovieContract.VideoEntry.CONTENT_URI, valuesArray);
-            getLoaderManager().restartLoader(DETAILS_LOADER, null, this);
+            getContext().getContentResolver().bulkInsert(MovieContract.VideoEntry.CONTENT_URI, videoValues);
+
+            // Persist review items in DB
+            ReviewResults reviewResults = movie.getReviewResults();
+            size = reviewResults.getReviews().size();
+            ContentValues[] reviewValues = new ContentValues[size];
+            for(int i = 0; i < size; i++) {
+                ContentValues values = new ContentValues();
+                Review review = reviewResults.getReviews().get(i);
+                values.put(MovieContract.ReviewEntry.COL_API_ID, review.getId());
+                values.put(MovieContract.ReviewEntry.COL_MOVIE_ID, movieId);
+                values.put(MovieContract.ReviewEntry.COL_AUTHOR, review.getAuthor());
+                values.put(MovieContract.ReviewEntry.COL_CONTENT, review.getText());
+                values.put(MovieContract.ReviewEntry.COL_URL, review.getUrl());
+                reviewValues[i] = values;
+            }
+            getContext().getContentResolver().bulkInsert(MovieContract.ReviewEntry.CONTENT_URI, reviewValues);
+
+            getLoaderManager().restartLoader(DETAILS_VIDEO_LOADER, null, this);
+            getLoaderManager().restartLoader(DETAILS_REVIEW_LOADER, null, this);
         }
     }
 
@@ -195,23 +252,43 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(
-            getContext(),
-            mUri,
-            DETAILS_PROJECTION,
-            null,
-            null,
-            null
-        );
+        switch (id) {
+            case DETAILS_VIDEO_LOADER:
+                return new CursorLoader(
+                    getContext(),
+                    mVideoUri,
+                    DETAILS_VIDEO_PROJECTION,
+                    null,
+                    null,
+                    null);
+            case DETAILS_REVIEW_LOADER:
+                return new CursorLoader(
+                    getContext(),
+                    mReviewUri,
+                    DETAILS_REVIEW_PROJECTION,
+                    null,
+                    null,
+                    null);
+            default:
+                return null;
+        }
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         Log.d(TAG, "onLoadFinished");
-        videoAdapter.swapCursor(data);
-        reviewAdapter.swapCursor(data);
+        switch (loader.getId()) {
+            case DETAILS_VIDEO_LOADER:
+                videoAdapter.swapCursor(data);
+                break;
+            case DETAILS_REVIEW_LOADER:
+                reviewAdapter.swapCursor(data);
+                break;
+            default:
+                break;
+        }
 
-        if(data != null) {
+        if(data != null && !isUpdated) {
             updateUI(data);
         }
     }
@@ -237,6 +314,8 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
         );
 
         service.getMovieDetails(movieId, apiKey, APPENDED_RESOURCES).enqueue(this);
+
+        isUpdated = true;
     }
 
     /*

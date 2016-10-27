@@ -40,6 +40,34 @@ public class ReviewResults implements Parcelable {
         totalReviews = in.readInt();
     }
 
+    public static final Creator<ReviewResults> CREATOR = new Creator<ReviewResults>() {
+        @Override
+        public ReviewResults createFromParcel(Parcel in) {
+            return new ReviewResults(in);
+        }
+
+        @Override
+        public ReviewResults[] newArray(int size) {
+            return new ReviewResults[size];
+        }
+    };
+
+    public int getPage() {
+        return page;
+    }
+
+    public List<Review> getReviews() {
+        return reviews;
+    }
+
+    public int getTotalPages() {
+        return totalPages;
+    }
+
+    public int getTotalReviews() {
+        return totalReviews;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(page);
@@ -53,15 +81,4 @@ public class ReviewResults implements Parcelable {
         return 0;
     }
 
-    public static final Creator<ReviewResults> CREATOR = new Creator<ReviewResults>() {
-        @Override
-        public ReviewResults createFromParcel(Parcel in) {
-            return new ReviewResults(in);
-        }
-
-        @Override
-        public ReviewResults[] newArray(int size) {
-            return new ReviewResults[size];
-        }
-    };
 }

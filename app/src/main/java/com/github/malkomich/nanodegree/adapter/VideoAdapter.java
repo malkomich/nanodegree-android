@@ -60,6 +60,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
         public ViewHolder(View view) {
             super(view);
             textView = (TextView) view.findViewById(R.id.video_type);
+            view.setOnClickListener(this);
         }
 
         @Override

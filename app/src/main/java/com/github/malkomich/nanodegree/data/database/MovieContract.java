@@ -53,9 +53,15 @@ public class MovieContract {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
-        public static Uri buildMovieDetailsWithMovieId(long movieId) {
+        public static Uri buildMovieDetailsJoinVideoWithMovieId(long movieId) {
             return buildMovieUri(movieId).buildUpon()
-                .appendQueryParameter(PATH_APPENDED_RESOURCES, "videos,reviews")
+                .appendQueryParameter(PATH_APPENDED_RESOURCES, "videos")
+                .build();
+        }
+
+        public static Uri buildMovieDetailsJoinReviewWithMovieId(long movieId) {
+            return buildMovieUri(movieId).buildUpon()
+                .appendQueryParameter(PATH_APPENDED_RESOURCES, "reviews")
                 .build();
         }
 

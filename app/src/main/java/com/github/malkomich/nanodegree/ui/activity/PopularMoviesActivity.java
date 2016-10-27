@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
 import com.github.malkomich.nanodegree.R;
 import com.github.malkomich.nanodegree.callback.OnDetailItemSelectedListener;
@@ -59,11 +58,14 @@ public class PopularMoviesActivity extends AppCompatActivity implements OnDetail
         MovieDetailsFragment detailsFragment = (MovieDetailsFragment)
             getSupportFragmentManager().findFragmentById(R.id.movie_details_fragment);
 
-        Uri detailsUri = MovieContract.MovieEntry.
-            buildMovieDetailsWithMovieId(cursor.getLong(PopularMoviesFragment.COL_MOVIE_ID));
+        Uri detailsMovieUri = MovieContract.MovieEntry.
+            buildMovieDetailsJoinVideoWithMovieId(cursor.getLong(PopularMoviesFragment.COL_MOVIE_ID));
+        Uri detailsReviewUri = MovieContract.MovieEntry.
+            buildMovieDetailsJoinReviewWithMovieId(cursor.getLong(PopularMoviesFragment.COL_MOVIE_ID));
 
         Bundle args = new Bundle();
-        args.putParcelable(MovieDetailsFragment.DETAILS_URI, detailsUri);
+        args.putParcelable(MovieDetailsFragment.DETAILS_VIDEO_URI, detailsMovieUri);
+        args.putParcelable(MovieDetailsFragment.DETAILS_REVIEW_URI, detailsReviewUri);
 
         if (detailsFragment != null) {
             // If article frag is available, we're in two-pane layout...

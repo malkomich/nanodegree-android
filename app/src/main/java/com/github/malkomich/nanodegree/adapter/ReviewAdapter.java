@@ -62,6 +62,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
             super(view);
             authorView = (TextView) view.findViewById(R.id.review_author);
             contentView = (TextView) view.findViewById(R.id.review_content);
+            view.setOnClickListener(this);
         }
 
         @Override
