@@ -183,10 +183,12 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
         trailerList.setAdapter(videoAdapter);
         Drawable horizontalDivider = ContextCompat.getDrawable(getContext(), R.drawable.divider);
         trailerList.addItemDecoration(new DividerItemDecoration(horizontalDivider));
+        trailerList.setNestedScrollingEnabled(false);
 
         reviewAdapter = new ReviewAdapter(getContext());
         reviewList.setLayoutManager(new LinearLayoutManager(getContext()));
         reviewList.setAdapter(reviewAdapter);
+        reviewList.setNestedScrollingEnabled(false);
 
         Bundle arguments = getArguments();
         if (arguments != null) {
