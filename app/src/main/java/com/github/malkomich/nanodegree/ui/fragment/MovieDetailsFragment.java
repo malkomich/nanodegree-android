@@ -136,6 +136,7 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getActivity().setTitle(getString(R.string.title_fragment_details_view));
         isUpdated = false;
     }
 

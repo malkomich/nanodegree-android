@@ -1,29 +1,41 @@
 <resources xmlns:xliff="http://schemas.android.com/tools">
+    <!-- Meta data labels -->
+    <string name="provider_permission_label">Movie Provider Permission</string>
     <string name="app_name" translatable="false">NanoDegree</string>
 
+    <!-- Main menu -->
+    <string name="menu_title">My Nanodegree Apps!</string>
     <string name="button_app_1">Popular Movies</string>
     <string name="button_app_2" translatable="false">Stock Hawk</string>
     <string name="button_app_3" translatable="false">Build it Bigger</string>
     <string name="button_app_4" translatable="false">Make Your App Material</string>
     <string name="button_app_5" translatable="false">Go Ubiquitous</string>
     <string name="button_app_6" translatable="false">Capstone</string>
-
-    <string name="menu_title">My Nanodegree Apps!</string>
     <string name="button_toast">This button will launch <xliff:g id="appName">\"%1$s\"</xliff:g> app!</string>
-    <string name="title_activity_popular_movies">Popular Movies</string>
 
+    <!-- Popular movies -->
+    <string name="title_activity_popular_movies">Popular Movies</string>
     <string name="action_sort_popularity">Sort by popularity</string>
     <string name="action_sort_rated">Sort by rating</string>
     <string name="date">
         <xliff:g id="day">%1$d</xliff:g> of <xliff:g id="month">%2$s</xliff:g> of <xliff:g id="year">%3$d</xliff:g>
     </string>
-    <string name="movie_trailer_button">Watch the trailer</string>
-    <string name="connection_error">Check your network connection</string>
-
-    <string name="provider_permission_label">Movie Provider Permission</string>
+    <string name="title_fragment_details_view">Movie Details</string>
     <string name="video_site_invalid">
         Video from <xliff:g id="videoSite">%1$s</xliff:g> cannot be reproduced
     </string>
     <string name="movie_not_selected">Select a movie to see its details</string>
 
+    <!-- Error labels -->
+    <string name="network_error">Check your network connection</string>
+
+    <!-- Image content descriptions -->
+    <string name="desc_network_error_image">Network error icon</string>
+    <string name="desc_select_image">Select action icon</string>
+    <string name="desc_movie_image">Movie image scalable</string>
+    <string name="desc_star_icon">Star icon</string>
+    <string name="desc_hearing_icon">Hearing icon</string>
+    <string name="desc_favorite_icon">Favorite icon</string>
+    <string name="desc_play_icon">Play multimedia icon</string>
+    <string name="desc_popular_movie_image">Popular movies collection item's image</string>
 </resources>

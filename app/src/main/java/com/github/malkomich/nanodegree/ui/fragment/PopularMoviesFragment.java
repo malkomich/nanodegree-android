@@ -90,6 +90,7 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getActivity().setTitle(getString(R.string.title_activity_popular_movies));
         setHasOptionsMenu(true);
     }
 

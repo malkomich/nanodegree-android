@@ -13,7 +13,8 @@
         android:layout_weight="1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_play_arrow"/>
+        android:src="@drawable/ic_play_arrow"
+        android:contentDescription="@string/desc_play_icon"/>
 
     <TextView
         android:id="@+id/video_type"

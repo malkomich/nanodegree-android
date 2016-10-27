@@ -27,10 +27,12 @@
                 android:textAppearance="?android:textAppearanceLarge"/>
 
             <ImageView
+                android:id="@+id/favorite_icon"
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:src="@drawable/ic_favorite_border"/>
+                android:src="@drawable/ic_favorite_border"
+                android:contentDescription="@string/desc_favorite_icon"/>
 
         </LinearLayout>
 
@@ -57,7 +59,10 @@
                         android:layout_gravity="center"
                         android:layout_weight="5"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:scaleType="fitCenter"
+                        android:adjustViewBounds="true"
+                        android:contentDescription="@string/desc_movie_image"/>
 
                     <LinearLayout
                         android:orientation="vertical"
@@ -71,7 +76,7 @@
                             android:layout_weight="3"
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
-                            android:textAppearance="?android:textAppearanceSmall"
+                            android:textSize="@dimen/text_size_large"
                             android:textAlignment="center"/>
 
                         <LinearLayout
@@ -95,14 +100,15 @@
                                     <ImageView
                                         android:src="@drawable/ic_star_rate"
                                         android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"/>
+                                        android:layout_height="wrap_content"
+                                        android:contentDescription="@string/desc_star_icon"/>
 
                                     <TextView
                                         android:id="@+id/movie_popularity"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:paddingLeft="@dimen/margin_tiny"
-                                        android:textAppearance="?android:textAppearanceSmall"/>
+                                        android:textAppearance="?android:textAppearanceMedium"/>
 
                                 </LinearLayout>
 
@@ -115,14 +121,15 @@
                                     <ImageView
                                         android:src="@drawable/ic_hearing"
                                         android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"/>
+                                        android:layout_height="wrap_content"
+                                        android:contentDescription="@string/desc_hearing_icon"/>
 
                                     <TextView
                                         android:id="@+id/movie_rate"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:paddingLeft="@dimen/margin_tiny"
-                                        android:textAppearance="?android:textAppearanceSmall"/>
+                                        android:textAppearance="?android:textAppearanceMedium"/>
 
                                 </LinearLayout>
 
