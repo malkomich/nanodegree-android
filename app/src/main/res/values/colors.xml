@@ -8,6 +8,7 @@
     <color name="textColorSecondary">#514b4b</color>
     <color name="windowBackground">#e1ebf2</color>
 
-    <color name="colorShadow">#868a8c</color>
+    <color name="colorShadow">#c8a5a9ab</color>
     <color name="textColorWarning">#909090</color>
+    <color name="colorSelected">#643f51b5</color>
 </resources>

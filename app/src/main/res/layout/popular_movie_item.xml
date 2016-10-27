@@ -18,7 +18,6 @@
         android:id="@+id/overlay_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:alpha=".4"
-        android:background="@drawable/touch_selector"/>
+        android:background="@drawable/gridview_selector"/>
 
 </FrameLayout>

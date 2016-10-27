@@ -2,11 +2,13 @@ package com.github.malkomich.nanodegree.ui.fragment;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.dgreenhalgh.android.simpleitemdecoration.linear.DividerItemDecoration;
 import com.github.malkomich.nanodegree.R;
 import com.github.malkomich.nanodegree.adapter.ReviewAdapter;
 import com.github.malkomich.nanodegree.adapter.VideoAdapter;
@@ -145,6 +148,8 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
         videoAdapter = new VideoAdapter(getContext());
         trailerList.setLayoutManager(new LinearLayoutManager(getContext()));
         trailerList.setAdapter(videoAdapter);
+        Drawable horizontalDivider = ContextCompat.getDrawable(getContext(), R.drawable.divider);
+        trailerList.addItemDecoration(new DividerItemDecoration(horizontalDivider));
 
         reviewAdapter = new ReviewAdapter(getContext());
         reviewList.setLayoutManager(new LinearLayoutManager(getContext()));
