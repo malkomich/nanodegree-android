@@ -81,11 +81,11 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
     private MovieAdapter adapter;
     private OnDetailItemSelectedListener onMovieSelectedListener;
     // Item position in the grid view for the auto scroll
-    private int mPosition;
+    private int mPosition = GridView.INVALID_POSITION;
 
     @BindView(R.id.refreshSwiper) protected SwipeRefreshLayout refreshSwiper;
     @BindView(R.id.grid_view) protected GridView gridView;
-    @BindView(R.id.connection_error_layout) protected RelativeLayout errorView;
+    @BindView(R.id.empty_view_layout) protected RelativeLayout errorView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -329,4 +329,5 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
         Log.d(TAG, "onLoaderReset");
         adapter.swapCursor(null);
     }
+
 }

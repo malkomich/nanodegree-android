@@ -16,6 +16,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.github.malkomich.nanodegree.R;
@@ -117,6 +119,8 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
     private ReviewAdapter reviewAdapter;
     private boolean isUpdated;
 
+    @BindView(R.id.details_layout) protected LinearLayout detailsView;
+    @BindView(R.id.empty_view_layout) protected RelativeLayout emptyView;
     @BindView(R.id.movie_image) protected ImageView imageView;
     @BindView(R.id.movie_title) protected TextView titleView;
     @BindView(R.id.movie_description) protected TextView descriptionView;
@@ -290,6 +294,7 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
 
         if(data != null && !isUpdated) {
             updateUI(data);
+            showDetailsView(true);
         }
     }
 
@@ -354,6 +359,18 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
         if(data.getString(COL_VIDEO_KEY) == null) {
             refreshData(data.getLong(COL_MOVIE_API_ID));
         }
+    }
+
+    /**
+     * Toggle details view & empty view visibility status.
+     *
+     * @param detailsVisible visibility status of the details view
+     */
+    private void showDetailsView(boolean detailsVisible) {
+        int detailsViewVisibility = detailsVisible ? View.VISIBLE : View.GONE;
+        int emptyViewVisibility = detailsVisible ? View.GONE : View.VISIBLE;
+        detailsView.setVisibility(detailsViewVisibility);
+        emptyView.setVisibility(emptyViewVisibility);
     }
 
 }

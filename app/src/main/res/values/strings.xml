@@ -24,5 +24,6 @@
     <string name="video_site_invalid">
         Video from <xliff:g id="videoSite">%1$s</xliff:g> cannot be reproduced
     </string>
+    <string name="movie_not_selected">Select a movie to see its details</string>
 
 </resources>
