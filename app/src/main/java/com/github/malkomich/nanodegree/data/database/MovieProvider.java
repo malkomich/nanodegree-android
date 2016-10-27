@@ -41,6 +41,8 @@ public class MovieProvider extends ContentProvider {
         switch (match) {
             case MOVIE:
                 return MovieContract.MovieEntry.CONTENT_TYPE;
+            case MOVIE_DETAILS:
+                return MovieContract.MovieEntry.CONTENT_ITEM_TYPE;
             case VIDEO:
                 return MovieContract.VideoEntry.CONTENT_TYPE;
             case REVIEW:

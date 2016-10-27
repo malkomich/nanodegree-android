@@ -37,6 +37,7 @@ import com.github.malkomich.nanodegree.data.webservice.MovieService;
 import com.github.malkomich.nanodegree.domain.VideoResults;
 import com.squareup.picasso.Picasso;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 import butterknife.BindView;
@@ -64,18 +65,20 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
     public static final int COL_MOVIE_POPULARITY = 6;
     public static final int COL_MOVIE_VOTE_COUNT = 7;
     public static final int COL_MOVIE_VOTE_AVERAGE = 8;
+    public static final int COL_MOVIE_FAVORITE = 9;
+    public static final int COL_MOVIE_UPDATE_DATE = 10;
 
-    public static final int COL_VIDEO_ID = 9;
-    public static final int COL_VIDEO_API_ID = 10;
-    public static final int COL_VIDEO_KEY = 11;
-    public static final int COL_VIDEO_TYPE = 12;
-    public static final int COL_VIDEO_SITE = 13;
+    public static final int COL_VIDEO_ID = 11;
+    public static final int COL_VIDEO_API_ID = 12;
+    public static final int COL_VIDEO_KEY = 13;
+    public static final int COL_VIDEO_TYPE = 14;
+    public static final int COL_VIDEO_SITE = 15;
 
-    public static final int COL_REVIEW_ID = 9;
-    public static final int COL_REVIEW_API_ID = 10;
-    public static final int COL_REVIEW_AUTHOR = 11;
-    public static final int COL_REVIEW_CONTENT = 12;
-    public static final int COL_REVIEW_URL = 13;
+    public static final int COL_REVIEW_ID = 11;
+    public static final int COL_REVIEW_API_ID = 12;
+    public static final int COL_REVIEW_AUTHOR = 13;
+    public static final int COL_REVIEW_CONTENT = 14;
+    public static final int COL_REVIEW_URL = 15;
 
     private static final String TAG = MovieDetailsFragment.class.getName();
     private static final int DETAILS_VIDEO_LOADER = 1;
@@ -93,6 +96,8 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
         MovieContract.MovieEntry.COL_POPULARITY,
         MovieContract.MovieEntry.COL_VOTE_COUNT,
         MovieContract.MovieEntry.COL_VOTE_AVERAGE,
+        MovieContract.MovieEntry.COL_FAVORITE,
+        MovieContract.MovieEntry.COL_UPDATE_DATE,
         MovieContract.VideoEntry.TABLE_NAME + "." + MovieContract.VideoEntry._ID,
         MovieContract.VideoEntry.TABLE_NAME + "." + MovieContract.VideoEntry.COL_API_ID,
         MovieContract.VideoEntry.COL_KEY,
@@ -109,6 +114,8 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
         MovieContract.MovieEntry.COL_POPULARITY,
         MovieContract.MovieEntry.COL_VOTE_COUNT,
         MovieContract.MovieEntry.COL_VOTE_AVERAGE,
+        MovieContract.MovieEntry.COL_FAVORITE,
+        MovieContract.MovieEntry.COL_UPDATE_DATE,
         MovieContract.ReviewEntry.TABLE_NAME + "." + MovieContract.ReviewEntry._ID,
         MovieContract.ReviewEntry.TABLE_NAME + "." + MovieContract.ReviewEntry.COL_API_ID,
         MovieContract.ReviewEntry.COL_AUTHOR,
@@ -121,23 +128,30 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
     private VideoAdapter videoAdapter;
     private ReviewAdapter reviewAdapter;
     private boolean isUpdated;
+    private boolean favorite;
 
     @BindView(R.id.details_layout) protected LinearLayout detailsView;
     @BindView(R.id.empty_view_layout) protected RelativeLayout emptyView;
-    @BindView(R.id.movie_image) protected ImageView imageView;
     @BindView(R.id.movie_title) protected TextView titleView;
-    @BindView(R.id.movie_description) protected TextView descriptionView;
+    @BindView(R.id.favorite_icon) protected ImageView favoriteIcon;
+    @BindView(R.id.movie_image) protected ImageView imageView;
+    @BindView(R.id.movie_date) protected TextView dateView;
     @BindView(R.id.movie_popularity) protected TextView popularityView;
     @BindView(R.id.movie_rate) protected TextView rateView;
-    @BindView(R.id.movie_date) protected TextView dateView;
+    @BindView(R.id.movie_description) protected TextView descriptionView;
     @BindView(R.id.trailer_list) protected RecyclerView trailerList;
     @BindView(R.id.review_list) protected RecyclerView reviewList;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getActivity().setTitle(getString(R.string.title_fragment_details_view));
         isUpdated = false;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getActivity().setTitle(getString(R.string.title_fragment_details_view));
     }
 
     @Override
@@ -145,6 +159,24 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
 
         View view = inflater.inflate(R.layout.fragment_movie_details, container, false);
         ButterKnife.bind(this, view);
+
+        favoriteIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Force to update UI in next Loader sync
+                isUpdated = false;
+
+                ((ImageView) v).getDrawable();
+                ContentValues values = new ContentValues();
+                values.put(MovieContract.MovieEntry.COL_FAVORITE, !favorite);
+                getContext().getContentResolver().update(
+                    MovieContract.MovieEntry.CONTENT_URI,
+                    values,
+                    MovieContract.MovieEntry._ID + "=?",
+                    new String[]{String.valueOf(MovieContract.MovieEntry.getMovieIdFromUri(mVideoUri))}
+                );
+            }
+        });
 
         videoAdapter = new VideoAdapter(getContext());
         trailerList.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -251,6 +283,16 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
             }
             getContext().getContentResolver().bulkInsert(MovieContract.ReviewEntry.CONTENT_URI, reviewValues);
 
+            // Update movie date of last sync with API
+            ContentValues movieValues = new ContentValues();
+            movieValues.put(MovieContract.MovieEntry.COL_UPDATE_DATE, new DateTime().getMillis());
+            getContext().getContentResolver().update(
+                MovieContract.MovieEntry.CONTENT_URI,
+                movieValues,
+                MovieContract.MovieEntry._ID + "=?",
+                new String[]{String.valueOf(movieId)}
+            );
+
             getLoaderManager().restartLoader(DETAILS_VIDEO_LOADER, null, this);
             getLoaderManager().restartLoader(DETAILS_REVIEW_LOADER, null, this);
         }
@@ -339,6 +381,7 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
         }
 
         String title = data.getString(COL_MOVIE_TITLE);
+        favorite = data.getInt(COL_MOVIE_FAVORITE) > 0;
         String posterPath = data.getString(COL_MOVIE_POSTER_PATH);
         String description = data.getString(COL_MOVIE_DESCRIPTION);
         String dateString = data.getString(COL_MOVIE_DATE);
@@ -346,6 +389,9 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
         double voteAverage = data.getDouble(COL_MOVIE_VOTE_AVERAGE);
 
         titleView.setText(title);
+        Drawable favDrawable = favorite ? ContextCompat.getDrawable(getContext(), R.drawable.ic_favorite) :
+            ContextCompat.getDrawable(getContext(), R.drawable.ic_favorite_border);
+        favoriteIcon.setImageDrawable(favDrawable);
         Picasso.with(getContext()).load(posterPath).into(imageView);
         descriptionView.setText(description);
         popularityView.setText(
@@ -362,7 +408,8 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
             date.getYear())
         );
 
-        if(data.getString(COL_VIDEO_KEY) == null) {
+        DateTime updateDateTime = new DateTime(data.getLong(COL_MOVIE_UPDATE_DATE));
+        if(updateDateTime.isBefore(new DateTime().minusDays(1))) {
             refreshData(data.getLong(COL_MOVIE_API_ID));
         }
     }
