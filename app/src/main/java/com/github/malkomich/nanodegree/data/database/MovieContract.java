@@ -13,7 +13,7 @@ public class MovieContract {
     // Content provider identifier
     public static final String CONTENT_AUTHORITY = "com.github.malkomich.nanodegree";
     // Base Uri to locate the content provider
-    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+    private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     // Resources paths which can be accessed by the content provider
     public static final String PATH_MOVIE = "movie";
@@ -113,11 +113,6 @@ public class MovieContract {
                 .build();
         }
 
-        public static long getMovieIdFromUri(Uri uri) {
-            String movieIdString = uri.getQueryParameter(COL_MOVIE_ID);
-            return movieIdString != null ? Long.parseLong(movieIdString) : 0;
-        }
-
     }
 
     /**
@@ -147,11 +142,6 @@ public class MovieContract {
 
         public static Uri buildReviewUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
-        }
-
-        public static long getMovieIdFromUri(Uri uri) {
-            String movieIdString = uri.getQueryParameter(COL_MOVIE_ID);
-            return movieIdString != null ? Long.parseLong(movieIdString) : 0;
         }
 
     }

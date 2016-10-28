@@ -19,7 +19,7 @@ import com.github.malkomich.nanodegree.ui.fragment.MovieDetailsFragment;
  */
 public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> {
 
-    private Context mContext;
+    private final Context mContext;
     private Cursor cursor;
 
     public VideoAdapter(Context context) {

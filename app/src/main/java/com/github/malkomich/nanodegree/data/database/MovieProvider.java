@@ -17,10 +17,10 @@ public class MovieProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private MovieDBHelper mOpenHelper;
 
-    static final int MOVIE = 100;
-    static final int MOVIE_DETAILS = 101;
-    static final int VIDEO = 200;
-    static final int REVIEW = 300;
+    private static final int MOVIE = 100;
+    private static final int MOVIE_DETAILS = 101;
+    private static final int VIDEO = 200;
+    private static final int REVIEW = 300;
 
     // movie._id = ?
     private static final String sMovieIdSelection =
@@ -265,7 +265,7 @@ public class MovieProvider extends ContentProvider {
         return rowsInserted;
     }
 
-    static UriMatcher buildUriMatcher() {
+    private static UriMatcher buildUriMatcher() {
         // All paths added to the UriMatcher have a corresponding code to return when a match is
         // found.  The code passed into the constructor represents the code to return for the root
         // URI.  It's common to use NO_MATCH as the code for this case.

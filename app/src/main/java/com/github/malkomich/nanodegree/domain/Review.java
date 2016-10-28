@@ -18,18 +18,18 @@ public class Review implements Parcelable {
 
     @SerializedName(ID)
     @Expose
-    private String id;
+    private final String id;
     @SerializedName(AUTHOR)
     @Expose
-    private String author;
+    private final String author;
     @SerializedName(TEXT)
     @Expose
-    private String text;
+    private final String text;
     @SerializedName(URL)
     @Expose
-    private String url;
+    private final String url;
 
-    protected Review(Parcel in) {
+    private Review(Parcel in) {
         id = in.readString();
         author = in.readString();
         text = in.readString();

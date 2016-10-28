@@ -28,37 +28,37 @@ public class Movie implements Parcelable {
 
     @SerializedName(ID)
     @Expose
-    private int id;
+    private final int id;
     @SerializedName(TITLE)
     @Expose
-    private String title;
+    private final String title;
     @SerializedName(DESCRIPTION)
     @Expose
-    private String description;
+    private final String description;
     @SerializedName(DATE)
     @Expose
-    private String date;
+    private final String date;
     @SerializedName(POSTER_PATH)
     @Expose
-    private String posterPath;
+    private final String posterPath;
     @SerializedName(POPULARITY)
     @Expose
-    private double popularity;
+    private final double popularity;
     @SerializedName(VOTE_COUNT)
     @Expose
-    private int voteCount;
+    private final int voteCount;
     @SerializedName(VOTE_AVERAGE)
     @Expose
-    private double voteAverage;
+    private final double voteAverage;
     @SerializedName(VIDEOS)
     @Expose
-    private VideoResults videoResults;
+    private final VideoResults videoResults;
     @SerializedName(REVIEWS)
     @Expose
-    private ReviewResults reviewResults;
+    private final ReviewResults reviewResults;
 
 
-    protected Movie(Parcel in) {
+    private Movie(Parcel in) {
         id = in.readInt();
         title = in.readString();
         description = in.readString();
@@ -93,10 +93,6 @@ public class Movie implements Parcelable {
 
     public String getDescription() {
         return description;
-    }
-
-    public LocalDate getDate() {
-        return new LocalDate(date);
     }
 
     public String getPosterPath() {

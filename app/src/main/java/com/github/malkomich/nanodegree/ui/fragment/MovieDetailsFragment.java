@@ -53,17 +53,17 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
     public static final String DETAILS_REVIEW_URI = "review_uri";
 
     // Index for the projected columns of Movie's table.
-    public static final int COL_MOVIE_ID = 0;
-    public static final int COL_MOVIE_API_ID = 1;
-    public static final int COL_MOVIE_TITLE = 2;
-    public static final int COL_MOVIE_DESCRIPTION = 3;
-    public static final int COL_MOVIE_DATE = 4;
-    public static final int COL_MOVIE_POSTER_PATH = 5;
-    public static final int COL_MOVIE_POPULARITY = 6;
-    public static final int COL_MOVIE_VOTE_COUNT = 7;
-    public static final int COL_MOVIE_VOTE_AVERAGE = 8;
-    public static final int COL_MOVIE_FAVORITE = 9;
-    public static final int COL_MOVIE_UPDATE_DATE = 10;
+    private static final int COL_MOVIE_ID = 0;
+    private static final int COL_MOVIE_API_ID = 1;
+    private static final int COL_MOVIE_TITLE = 2;
+    private static final int COL_MOVIE_DESCRIPTION = 3;
+    private static final int COL_MOVIE_DATE = 4;
+    private static final int COL_MOVIE_POSTER_PATH = 5;
+    private static final int COL_MOVIE_POPULARITY = 6;
+    private static final int COL_MOVIE_VOTE_COUNT = 7;
+    private static final int COL_MOVIE_VOTE_AVERAGE = 8;
+    private static final int COL_MOVIE_FAVORITE = 9;
+    private static final int COL_MOVIE_UPDATE_DATE = 10;
 
     public static final int COL_VIDEO_ID = 11;
     public static final int COL_VIDEO_API_ID = 12;
@@ -360,7 +360,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
 
     @Override
     public void syncVideoResults(VideoResults videoResults) {
-        long movieId = MovieContract.MovieEntry.getMovieIdFromUri(mVideoUri);
+        long movieId = videoResults.getMovieId();
 
         int size = videoResults.getVideos().size();
         ContentValues[] videoValues = new ContentValues[size];
@@ -379,8 +379,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
     }
 
     @Override
-    public void syncReviewResults(ReviewResults reviewResults) {
-        long movieId = MovieContract.MovieEntry.getMovieIdFromUri(mVideoUri);
+    public void syncReviewResults(ReviewResults reviewResults, long movieId) {
 
         int size = reviewResults.getReviews().size();
         ContentValues[] reviewValues = new ContentValues[size];
@@ -400,7 +399,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
 
     @Override
     public void syncMovieDetails(Movie movie) {
-        long movieId = MovieContract.MovieEntry.getMovieIdFromUri(mVideoUri);
+        long movieId = movie.getId();
 
         ContentValues movieValues = new ContentValues();
         movieValues.put(MovieContract.MovieEntry.COL_UPDATE_DATE, new DateTime().getMillis());

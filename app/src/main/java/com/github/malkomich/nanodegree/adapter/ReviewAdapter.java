@@ -18,7 +18,7 @@ import com.github.malkomich.nanodegree.ui.fragment.MovieDetailsFragment;
  */
 public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder> {
 
-    private Context mContext;
+    private final Context mContext;
     private Cursor cursor;
 
     public ReviewAdapter(Context context) {

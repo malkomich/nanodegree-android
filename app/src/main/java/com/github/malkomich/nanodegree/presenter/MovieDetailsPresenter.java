@@ -1,6 +1,5 @@
 package com.github.malkomich.nanodegree.presenter;
 
-import com.github.malkomich.nanodegree.data.database.MovieContract;
 import com.github.malkomich.nanodegree.data.webservice.HttpClientGenerator;
 import com.github.malkomich.nanodegree.data.webservice.MovieService;
 import com.github.malkomich.nanodegree.domain.Movie;
@@ -19,7 +18,7 @@ public class MovieDetailsPresenter implements Callback<Movie> {
 
     private static final String APPENDED_RESOURCES = "videos,reviews";
 
-    private MovieDetailsView mView;
+    private final MovieDetailsView mView;
     private boolean mUpdated;
 
     public MovieDetailsPresenter(MovieDetailsView view) {
@@ -53,7 +52,7 @@ public class MovieDetailsPresenter implements Callback<Movie> {
 
             // Persist review items in DB
             ReviewResults reviewResults = movie.getReviewResults();
-            mView.syncReviewResults(reviewResults);
+            mView.syncReviewResults(reviewResults, movie.getId());
 
             // Update movie date of last sync with API
             mView.syncMovieDetails(movie);

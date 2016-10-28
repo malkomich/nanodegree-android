@@ -14,7 +14,7 @@ import retrofit2.Response;
  */
 public class PopularMoviesPresenter implements Callback<MovieResults> {
 
-    private PopularMoviesView mView;
+    private final PopularMoviesView mView;
 
     public PopularMoviesPresenter(PopularMoviesView view) {
         mView = view;

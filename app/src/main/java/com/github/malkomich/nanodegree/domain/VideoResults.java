@@ -1,6 +1,5 @@
 package com.github.malkomich.nanodegree.domain;
 
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -20,7 +19,7 @@ public class VideoResults implements Parcelable {
 
     @SerializedName(ID)
     @Expose
-    private int movieId;
+    private final int movieId;
     @SerializedName(VIDEOS)
     @Expose
     private List<Video> videos = new ArrayList<>();

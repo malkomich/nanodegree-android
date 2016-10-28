@@ -22,7 +22,7 @@ public class MovieResults implements Parcelable {
     private List<Movie> movies = new ArrayList<>();
     @SerializedName(PAGE)
     @Expose
-    private int page;
+    private final int page;
 
     private MovieResults(Parcel in) {
         movies = in.createTypedArrayList(Movie.CREATOR);

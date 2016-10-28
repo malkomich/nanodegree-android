@@ -12,7 +12,7 @@ public interface MovieDetailsView {
 
     void syncVideoResults(VideoResults videoResults);
 
-    void syncReviewResults(ReviewResults reviewResults);
+    void syncReviewResults(ReviewResults reviewResults, long movieId);
 
     void syncMovieDetails(Movie movie);
 }

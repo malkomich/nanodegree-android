@@ -21,19 +21,19 @@ public class ReviewResults implements Parcelable {
 
     @SerializedName(PAGE)
     @Expose
-    private int page;
+    private final int page;
     @SerializedName(REVIEWS)
     @Expose
     private List<Review> reviews = new ArrayList<>();
     @SerializedName(TOTAL_PAGES)
     @Expose
-    private int totalPages;
+    private final int totalPages;
     @SerializedName(TOTAL_REVIEWS)
     @Expose
-    private int totalReviews;
+    private final int totalReviews;
 
 
-    protected ReviewResults(Parcel in) {
+    ReviewResults(Parcel in) {
         page = in.readInt();
         reviews = in.createTypedArrayList(Review.CREATOR);
         totalPages = in.readInt();

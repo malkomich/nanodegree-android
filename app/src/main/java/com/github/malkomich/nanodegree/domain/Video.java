@@ -7,15 +7,13 @@ import android.os.Parcelable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import org.json.JSONObject;
-
 /**
  * Model which represents an online video information.
  */
 public class Video implements Parcelable {
 
     public static final String SITE_YOUTUBE = "YouTube";
-    public static final String YOUTUBE_BASE_PATH = "https://www.youtube.com/watch?";
+    private static final String YOUTUBE_BASE_PATH = "https://www.youtube.com/watch?";
 
     private static final String ID = "id";
     private static final String KEY = "key";
@@ -27,20 +25,13 @@ public class Video implements Parcelable {
     private String id;
     @SerializedName(KEY)
     @Expose
-    private String key;
+    private final String key;
     @SerializedName(TYPE)
     @Expose
-    private String type;
+    private final String type;
     @SerializedName(SITE)
     @Expose
-    private String site;
-
-    public Video(String id, String key, String type, String site) {
-        this.id = id;
-        this.key = key;
-        this.type = type;
-        this.site = site;
-    }
+    private final String site;
 
     private Video(Parcel in) {
         key = in.readString();
@@ -101,7 +92,7 @@ public class Video implements Parcelable {
         CLIP("Clip"),
         FEATURETTE("Featurette");
 
-        private String name;
+        private final String name;
 
         VideoType(String name) {
             this.name = name;

@@ -40,7 +40,6 @@ public class MovieAdapter extends CursorAdapter {
         Picasso.with(context)
             .load(url)
             .placeholder(R.drawable.placeholder)
-            .error(R.drawable.error)
             .fit()
             .tag(context)
             .into(viewHolder.imageView);
