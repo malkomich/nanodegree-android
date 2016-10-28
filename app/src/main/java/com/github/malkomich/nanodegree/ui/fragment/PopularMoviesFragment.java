@@ -179,6 +179,14 @@ public class PopularMoviesFragment extends Fragment implements PopularMoviesView
         super.onCreateOptionsMenu(menu,inflater);
     }
 
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        SharedPreferences preferences = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        boolean favorite = preferences.getBoolean(PREFS_FAVORITE, false);
+        menu.findItem(R.id.action_filter_favorites).setChecked(favorite);
+    }
+
     /* (non-Javadoc)
      * @see android.support.v4.app.Fragment#onSaveInstanceState()
      */
