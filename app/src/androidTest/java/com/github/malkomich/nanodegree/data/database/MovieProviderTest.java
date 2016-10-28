@@ -63,9 +63,6 @@ public class MovieProviderTest {
     @Test
     public void testBasicMovieQuery() {
 
-        MovieDBHelper dbHelper = new MovieDBHelper(mContext);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-
         ContentValues testValues = TestUtilities.createDummyMovieValues();
         TestUtilities.insertDummyMovie(mContext);
 
