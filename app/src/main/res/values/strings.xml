@@ -27,6 +27,9 @@
         Video from <xliff:g id="videoSite">%1$s</xliff:g> cannot be reproduced.
     </string>
     <string name="movie_not_selected">Select a movie to see its details</string>
+    <string name="time">
+        <xliff:g id="minutes">%1$d</xliff:g> min.
+    </string>
     <string name="rate" translatable="false">
         <xliff:g id="rate_value">%1$.2f</xliff:g> / 10
     </string>
@@ -39,8 +42,9 @@
     <string name="desc_no_movies_error_image">Network error icon</string>
     <string name="desc_select_image">Select action icon</string>
     <string name="desc_movie_image">Movie poster scalable</string>
-    <string name="desc_star_icon">Star icon (Rating)</string>
+    <string name="desc_time_icon">Time duration icon</string>
     <string name="desc_hearing_icon">Hearing icon (Popularity)</string>
+    <string name="desc_star_icon">Star icon (Rating)</string>
     <string name="desc_favorite_icon">Favorite icon</string>
     <string name="desc_play_icon">Play multimedia icon</string>
     <string name="desc_popular_movie_image">Popular movies collection item\'s poster</string>

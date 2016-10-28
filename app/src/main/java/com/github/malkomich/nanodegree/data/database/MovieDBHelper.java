@@ -38,6 +38,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
             MovieContract.MovieEntry.COL_POPULARITY + " REAL DEFAULT 0.0, " +
             MovieContract.MovieEntry.COL_VOTE_COUNT + " INTEGER DEFAULT 0, " +
             MovieContract.MovieEntry.COL_VOTE_AVERAGE + " REAL DEFAULT 0.0, " +
+            MovieContract.MovieEntry.COL_DURATION + " INTEGER DEFAULT 0, " +
             MovieContract.MovieEntry.COL_FAVORITE + " INTEGER DEFAULT 0, " +
             MovieContract.MovieEntry.COL_UPDATE_DATE + " INTEGER DEFAULT 0 " +
             ");";

@@ -62,20 +62,21 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
     private static final int COL_MOVIE_POPULARITY = 6;
     private static final int COL_MOVIE_VOTE_COUNT = 7;
     private static final int COL_MOVIE_VOTE_AVERAGE = 8;
-    private static final int COL_MOVIE_FAVORITE = 9;
-    private static final int COL_MOVIE_UPDATE_DATE = 10;
+    private static final int COL_MOVIE_DURATION = 9;
+    private static final int COL_MOVIE_FAVORITE = 10;
+    private static final int COL_MOVIE_UPDATE_DATE = 11;
 
-    public static final int COL_VIDEO_ID = 11;
-    public static final int COL_VIDEO_API_ID = 12;
-    public static final int COL_VIDEO_KEY = 13;
-    public static final int COL_VIDEO_TYPE = 14;
-    public static final int COL_VIDEO_SITE = 15;
+    public static final int COL_VIDEO_ID = 12;
+    public static final int COL_VIDEO_API_ID = 13;
+    public static final int COL_VIDEO_KEY = 14;
+    public static final int COL_VIDEO_TYPE = 15;
+    public static final int COL_VIDEO_SITE = 16;
 
-    public static final int COL_REVIEW_ID = 11;
-    public static final int COL_REVIEW_API_ID = 12;
-    public static final int COL_REVIEW_AUTHOR = 13;
-    public static final int COL_REVIEW_CONTENT = 14;
-    public static final int COL_REVIEW_URL = 15;
+    public static final int COL_REVIEW_ID = 12;
+    public static final int COL_REVIEW_API_ID = 13;
+    public static final int COL_REVIEW_AUTHOR = 14;
+    public static final int COL_REVIEW_CONTENT = 15;
+    public static final int COL_REVIEW_URL = 16;
 
     // Projections for Movie's query.
     private static final String[] DETAILS_VIDEO_PROJECTION = {
@@ -88,6 +89,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
         MovieContract.MovieEntry.COL_POPULARITY,
         MovieContract.MovieEntry.COL_VOTE_COUNT,
         MovieContract.MovieEntry.COL_VOTE_AVERAGE,
+        MovieContract.MovieEntry.COL_DURATION,
         MovieContract.MovieEntry.COL_FAVORITE,
         MovieContract.MovieEntry.COL_UPDATE_DATE,
         MovieContract.VideoEntry.TABLE_NAME + "." + MovieContract.VideoEntry._ID,
@@ -106,6 +108,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
         MovieContract.MovieEntry.COL_POPULARITY,
         MovieContract.MovieEntry.COL_VOTE_COUNT,
         MovieContract.MovieEntry.COL_VOTE_AVERAGE,
+        MovieContract.MovieEntry.COL_DURATION,
         MovieContract.MovieEntry.COL_FAVORITE,
         MovieContract.MovieEntry.COL_UPDATE_DATE,
         MovieContract.ReviewEntry.TABLE_NAME + "." + MovieContract.ReviewEntry._ID,
@@ -136,6 +139,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
     @BindView(R.id.favorite_icon) protected ImageView favoriteIcon;
     @BindView(R.id.movie_image) protected ImageView imageView;
     @BindView(R.id.movie_date) protected TextView dateView;
+    @BindView(R.id.movie_duration) protected TextView durationView;
     @BindView(R.id.movie_popularity) protected TextView popularityView;
     @BindView(R.id.movie_rate) protected TextView rateView;
     @BindView(R.id.movie_description) protected TextView descriptionView;
@@ -309,6 +313,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
             updateUI(data);
             showDetailsView(true);
         }
+        updateUIDetails(data);
     }
 
     /* (non-Javadoc)
@@ -332,7 +337,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
     }
 
     /*
-     * Update movie details UI components.
+     * Update basic data from movie on UI components.
      */
     private void updateUI(Cursor data) {
 
@@ -371,6 +376,23 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
         if(updateDateTime.isBefore(new DateTime().minusDays(1))) {
             refreshData(data.getLong(COL_MOVIE_API_ID));
         }
+    }
+
+    /*
+     * Update movie details on UI components.
+     */
+    private void updateUIDetails(Cursor data) {
+
+        if(!data.moveToFirst()) {
+            return;
+        }
+
+        int duration = data.getInt(COL_MOVIE_DURATION);
+
+        if(duration > 0) {
+            durationView.setVisibility(View.VISIBLE);
+        }
+        durationView.setText(getString(R.string.time, duration));
     }
 
     /**
@@ -435,11 +457,15 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
     @Override
     public void syncMovieDetails(Movie movie) {
 
-        ContentValues movieValues = new ContentValues();
-        movieValues.put(MovieContract.MovieEntry.COL_UPDATE_DATE, new DateTime().getMillis());
+        ContentValues values = new ContentValues();
+        values.put(MovieContract.MovieEntry.COL_UPDATE_DATE, new DateTime().getMillis());
+        values.put(MovieContract.MovieEntry.COL_POPULARITY, movie.getPopularity());
+        values.put(MovieContract.MovieEntry.COL_VOTE_COUNT, movie.getVoteCount());
+        values.put(MovieContract.MovieEntry.COL_VOTE_AVERAGE, movie.getVoteAverage());
+        values.put(MovieContract.MovieEntry.COL_DURATION, movie.getDuration());
         getContext().getContentResolver().update(
             MovieContract.MovieEntry.CONTENT_URI,
-            movieValues,
+            values,
             MovieContract.MovieEntry._ID + "=?",
             new String[]{String.valueOf(mMovieId)}
         );

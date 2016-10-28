@@ -55,6 +55,8 @@ public class PopularMoviesFragment extends Fragment implements PopularMoviesView
     public static final int COL_MOVIE_POPULARITY = 6;
     public static final int COL_MOVIE_VOTE_COUNT = 7;
     public static final int COL_MOVIE_VOTE_AVERAGE = 8;
+    public static final int COL_MOVIE_DURATION = 9;
+    public static final int COL_MOVIE_FAVORITE = 10;
 
     // Projection for Movie's query.
     private static final String[] MOVIE_PROJECTION = {
@@ -67,6 +69,7 @@ public class PopularMoviesFragment extends Fragment implements PopularMoviesView
         MovieContract.MovieEntry.COL_POPULARITY,
         MovieContract.MovieEntry.COL_VOTE_COUNT,
         MovieContract.MovieEntry.COL_VOTE_AVERAGE,
+        MovieContract.MovieEntry.COL_DURATION,
         MovieContract.MovieEntry.COL_FAVORITE
     };
 

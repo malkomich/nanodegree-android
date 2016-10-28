@@ -23,4 +23,5 @@
     <string name="provider_permission_label">Permiso para el proveedor de películas</string>
     <string name="title_fragment_details_view">Detalles de la película</string>
     <string name="video_site_invalid">No se pueden reproducir vídeos de <xliff:g id="videoSite">%1$s</xliff:g>.</string>
+    <string name="desc_time_icon">Icono de tiempo de duración</string>
 </resources>

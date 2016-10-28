@@ -50,7 +50,7 @@
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="@dimen/margin_large">
+                    android:layout_marginBottom="@dimen/margin_large">
 
                     <ImageView
                         android:id="@+id/movie_image"
@@ -77,6 +77,22 @@
                             android:textAlignment="center"/>
 
                         <TextView
+                            android:id="@+id/movie_duration"
+                            android:visibility="gone"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?android:textAppearanceMedium"
+                            android:drawableLeft="@drawable/ic_time"
+                            android:drawableStart="@drawable/ic_time"
+                            android:gravity="fill|center"
+                            android:drawablePadding="@dimen/margin_medium"
+                            android:layout_below="@+id/movie_date"
+                            android:layout_marginTop="@dimen/margin_large"
+                            android:layout_marginLeft="@dimen/margin_large"
+                            android:layout_marginStart="@dimen/margin_large"
+                            android:contentDescription="@string/desc_time_icon"/>
+
+                        <TextView
                             android:id="@+id/movie_popularity"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -85,9 +101,10 @@
                             android:drawableStart="@drawable/ic_hearing"
                             android:gravity="fill|center"
                             android:drawablePadding="@dimen/margin_medium"
-                            android:layout_below="@+id/movie_date"
-                            android:layout_marginTop="@dimen/margin_large"
-                            android:layout_centerHorizontal="true"
+                            android:layout_below="@+id/movie_duration"
+                            android:layout_alignLeft="@+id/movie_duration"
+                            android:layout_alignStart="@+id/movie_duration"
+                            android:layout_marginTop="@dimen/margin_medium"
                             android:contentDescription="@string/desc_hearing_icon"/>
 
                         <TextView
@@ -100,8 +117,9 @@
                             android:gravity="fill"
                             android:drawablePadding="@dimen/margin_medium"
                             android:layout_below="@+id/movie_popularity"
+                            android:layout_alignLeft="@+id/movie_popularity"
+                            android:layout_alignStart="@+id/movie_popularity"
                             android:layout_marginTop="@dimen/margin_medium"
-                            android:layout_centerHorizontal="true"
                             android:contentDescription="@string/desc_star_icon"/>
 
                     </RelativeLayout>
