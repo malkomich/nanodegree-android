@@ -30,22 +30,19 @@ import com.github.malkomich.nanodegree.R;
 import com.github.malkomich.nanodegree.adapter.MovieAdapter;
 import com.github.malkomich.nanodegree.callback.OnDetailItemSelectedListener;
 import com.github.malkomich.nanodegree.data.database.MovieContract;
-import com.github.malkomich.nanodegree.data.webservice.HttpClientGenerator;
-import com.github.malkomich.nanodegree.data.webservice.MovieService;
 import com.github.malkomich.nanodegree.domain.Movie;
 import com.github.malkomich.nanodegree.domain.MovieResults;
+import com.github.malkomich.nanodegree.presenter.PopularMoviesPresenter;
+import com.github.malkomich.nanodegree.ui.view.PopularMoviesView;
 import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * Movies fragment containing the grid view of poster images of the popular films.
  */
-public class PopularMoviesFragment extends Fragment implements Callback<MovieResults>,
+public class PopularMoviesFragment extends Fragment implements PopularMoviesView,
     LoaderManager.LoaderCallbacks<Cursor> {
 
     // Index for the projected columns of Movie's table.
@@ -79,8 +76,8 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
     private static final String PREFS_ORDER = "order";
     private static final String PREFS_FAVORITE = "favorites";
     private static final String SELECTED_KEY = "selected_position";
-    private static final String FILTER_FAVORITES = "filter_favorites";
 
+    private PopularMoviesPresenter mPresenter;
     private MovieAdapter adapter;
     private OnDetailItemSelectedListener onMovieSelectedListener;
     // Item position in the grid view for the auto scroll
@@ -95,6 +92,7 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        mPresenter = new PopularMoviesPresenter(this);
     }
 
     @Override
@@ -215,7 +213,7 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
      */
     private boolean isOnline() {
         ConnectivityManager connManager =
-            (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+            (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = connManager.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
@@ -228,13 +226,7 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
         if(isOnline()) {
             String apiKey = getString(R.string.tmdbApiKey);
 
-            // HTTP Client initialization
-            MovieService service = HttpClientGenerator.createService(
-                MovieService.class,
-                MovieService.BASE_URL
-            );
-
-            service.getPopularMovies(apiKey).enqueue(this);
+            mPresenter.requestPopularMovies(apiKey);
 
         } else {
             refreshSwiper.setRefreshing(false);
@@ -288,39 +280,6 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
     }
 
     @Override
-    public void onResponse(Call<MovieResults> call, Response<MovieResults> response) {
-
-        if(response.isSuccessful()) {
-            MovieResults results = response.body();
-
-            int size = results.getMovies().size();
-            ContentValues[] valuesArray = new ContentValues[size];
-            for(int i=0; i < size; i++) {
-                ContentValues values = new ContentValues();
-                Movie movie = results.getMovies().get(i);
-                values.put(MovieContract.MovieEntry.COL_API_ID, movie.getId());
-                values.put(MovieContract.MovieEntry.COL_TITLE, movie.getTitle());
-                values.put(MovieContract.MovieEntry.COL_DESCRIPTION, movie.getDescription());
-                values.put(MovieContract.MovieEntry.COL_DATE, movie.getDateString());
-                values.put(MovieContract.MovieEntry.COL_POSTER_PATH, movie.getPosterPath());
-                values.put(MovieContract.MovieEntry.COL_POPULARITY, movie.getPopularity());
-                values.put(MovieContract.MovieEntry.COL_VOTE_COUNT, movie.getVoteCount());
-                values.put(MovieContract.MovieEntry.COL_VOTE_AVERAGE, movie.getVoteAverage());
-                valuesArray[i] = values;
-            }
-            getContext().getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, valuesArray);
-
-            // Update views
-            refreshSwiper.setRefreshing(false);
-        }
-    }
-
-    @Override
-    public void onFailure(Call<MovieResults> call, Throwable t) {
-        t.printStackTrace();
-    }
-
-    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.d(TAG, "onCreateLoader");
         SharedPreferences preferences = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
@@ -368,4 +327,27 @@ public class PopularMoviesFragment extends Fragment implements Callback<MovieRes
         adapter.swapCursor(null);
     }
 
+    @Override
+    public void syncMovieResults(MovieResults results) {
+
+        int size = results.getMovies().size();
+        ContentValues[] valuesArray = new ContentValues[size];
+        for(int i=0; i < size; i++) {
+            ContentValues values = new ContentValues();
+            Movie movie = results.getMovies().get(i);
+            values.put(MovieContract.MovieEntry.COL_API_ID, movie.getId());
+            values.put(MovieContract.MovieEntry.COL_TITLE, movie.getTitle());
+            values.put(MovieContract.MovieEntry.COL_DESCRIPTION, movie.getDescription());
+            values.put(MovieContract.MovieEntry.COL_DATE, movie.getDateString());
+            values.put(MovieContract.MovieEntry.COL_POSTER_PATH, movie.getPosterPath());
+            values.put(MovieContract.MovieEntry.COL_POPULARITY, movie.getPopularity());
+            values.put(MovieContract.MovieEntry.COL_VOTE_COUNT, movie.getVoteCount());
+            values.put(MovieContract.MovieEntry.COL_VOTE_AVERAGE, movie.getVoteAverage());
+            valuesArray[i] = values;
+        }
+        getContext().getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, valuesArray);
+
+        // Update views
+        refreshSwiper.setRefreshing(false);
+    }
 }

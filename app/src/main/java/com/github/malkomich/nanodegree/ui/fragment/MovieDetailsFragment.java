@@ -27,13 +27,13 @@ import com.github.malkomich.nanodegree.R;
 import com.github.malkomich.nanodegree.adapter.ReviewAdapter;
 import com.github.malkomich.nanodegree.adapter.VideoAdapter;
 import com.github.malkomich.nanodegree.data.database.MovieContract;
-import com.github.malkomich.nanodegree.data.webservice.HttpClientGenerator;
 import com.github.malkomich.nanodegree.domain.Movie;
 import com.github.malkomich.nanodegree.domain.Review;
 import com.github.malkomich.nanodegree.domain.ReviewResults;
 import com.github.malkomich.nanodegree.domain.Video;
+import com.github.malkomich.nanodegree.presenter.MovieDetailsPresenter;
+import com.github.malkomich.nanodegree.ui.view.MovieDetailsView;
 import com.github.malkomich.nanodegree.util.MathUtils;
-import com.github.malkomich.nanodegree.data.webservice.MovieService;
 import com.github.malkomich.nanodegree.domain.VideoResults;
 import com.squareup.picasso.Picasso;
 
@@ -42,14 +42,11 @@ import org.joda.time.LocalDate;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * Movie details view.
  */
-public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
+public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
     LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String DETAILS_VIDEO_URI = "video_uri";
@@ -83,7 +80,6 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
     private static final String TAG = MovieDetailsFragment.class.getName();
     private static final int DETAILS_VIDEO_LOADER = 1;
     private static final int DETAILS_REVIEW_LOADER = 2;
-    private static final String APPENDED_RESOURCES = "videos,reviews";
 
     // Projections for Movie's query.
     private static final String[] DETAILS_VIDEO_PROJECTION = {
@@ -123,6 +119,7 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
         MovieContract.ReviewEntry.COL_URL
     };
 
+    private MovieDetailsPresenter mPresenter;
     private Uri mVideoUri;
     private Uri mReviewUri;
     private VideoAdapter videoAdapter;
@@ -145,6 +142,7 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mPresenter = new MovieDetailsPresenter(this);
         isUpdated = false;
     }
 
@@ -247,64 +245,6 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
     }
 
     @Override
-    public void onResponse(Call<Movie> call, Response<Movie> response) {
-
-        if(response.isSuccessful()) {
-            Movie movie = response.body();
-            long movieId = MovieContract.MovieEntry.getMovieIdFromUri(mVideoUri);
-
-            // Persist video items in DB
-            VideoResults videoResults = movie.getVideoResults();
-            int size = videoResults.getVideos().size();
-            ContentValues[] videoValues = new ContentValues[size];
-            for(int i = 0; i < size; i++) {
-                ContentValues values = new ContentValues();
-                Video video = videoResults.getVideos().get(i);
-                values.put(MovieContract.VideoEntry.COL_API_ID, video.getId());
-                values.put(MovieContract.VideoEntry.COL_MOVIE_ID, movieId);
-                values.put(MovieContract.VideoEntry.COL_KEY, video.getKey());
-                values.put(MovieContract.VideoEntry.COL_TYPE, video.getType().getName());
-                values.put(MovieContract.VideoEntry.COL_SITE, video.getSite());
-                videoValues[i] = values;
-            }
-            getContext().getContentResolver().bulkInsert(MovieContract.VideoEntry.CONTENT_URI, videoValues);
-
-            // Persist review items in DB
-            ReviewResults reviewResults = movie.getReviewResults();
-            size = reviewResults.getReviews().size();
-            ContentValues[] reviewValues = new ContentValues[size];
-            for(int i = 0; i < size; i++) {
-                ContentValues values = new ContentValues();
-                Review review = reviewResults.getReviews().get(i);
-                values.put(MovieContract.ReviewEntry.COL_API_ID, review.getId());
-                values.put(MovieContract.ReviewEntry.COL_MOVIE_ID, movieId);
-                values.put(MovieContract.ReviewEntry.COL_AUTHOR, review.getAuthor());
-                values.put(MovieContract.ReviewEntry.COL_CONTENT, review.getText());
-                values.put(MovieContract.ReviewEntry.COL_URL, review.getUrl());
-                reviewValues[i] = values;
-            }
-            getContext().getContentResolver().bulkInsert(MovieContract.ReviewEntry.CONTENT_URI, reviewValues);
-
-            // Update movie date of last sync with API
-            ContentValues movieValues = new ContentValues();
-            movieValues.put(MovieContract.MovieEntry.COL_UPDATE_DATE, new DateTime().getMillis());
-            getContext().getContentResolver().update(
-                MovieContract.MovieEntry.CONTENT_URI,
-                movieValues,
-                MovieContract.MovieEntry._ID + "=?",
-                new String[]{String.valueOf(movieId)}
-            );
-
-            getLoaderManager().restartLoader(DETAILS_VIDEO_LOADER, null, this);
-            getLoaderManager().restartLoader(DETAILS_REVIEW_LOADER, null, this);
-        }
-    }
-
-    @Override
-    public void onFailure(Call<Movie> call, Throwable t) {
-    }
-
-    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id) {
             case DETAILS_VIDEO_LOADER:
@@ -362,15 +302,7 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
 
         String apiKey = getString(R.string.tmdbApiKey);
 
-        // HTTP Client initialization
-        MovieService service = HttpClientGenerator.createService(
-            MovieService.class,
-            MovieService.BASE_URL
-        );
-
-        service.getMovieDetails(movieId, apiKey, APPENDED_RESOURCES).enqueue(this);
-
-        isUpdated = true;
+        mPresenter.requestMovieDetails(apiKey, movieId);
     }
 
     /*
@@ -428,4 +360,57 @@ public class MovieDetailsFragment extends Fragment implements Callback<Movie>,
         emptyView.setVisibility(emptyViewVisibility);
     }
 
+    @Override
+    public void syncVideoResults(VideoResults videoResults) {
+        long movieId = MovieContract.MovieEntry.getMovieIdFromUri(mVideoUri);
+
+        int size = videoResults.getVideos().size();
+        ContentValues[] videoValues = new ContentValues[size];
+        for(int i = 0; i < size; i++) {
+            ContentValues values = new ContentValues();
+            Video video = videoResults.getVideos().get(i);
+            values.put(MovieContract.VideoEntry.COL_API_ID, video.getId());
+            values.put(MovieContract.VideoEntry.COL_MOVIE_ID, movieId);
+            values.put(MovieContract.VideoEntry.COL_KEY, video.getKey());
+            values.put(MovieContract.VideoEntry.COL_TYPE, video.getType().getName());
+            values.put(MovieContract.VideoEntry.COL_SITE, video.getSite());
+            videoValues[i] = values;
+        }
+        getContext().getContentResolver().bulkInsert(MovieContract.VideoEntry.CONTENT_URI, videoValues);
+        getLoaderManager().restartLoader(DETAILS_VIDEO_LOADER, null, this);
+    }
+
+    @Override
+    public void syncReviewResults(ReviewResults reviewResults) {
+        long movieId = MovieContract.MovieEntry.getMovieIdFromUri(mVideoUri);
+
+        int size = reviewResults.getReviews().size();
+        ContentValues[] reviewValues = new ContentValues[size];
+        for(int i = 0; i < size; i++) {
+            ContentValues values = new ContentValues();
+            Review review = reviewResults.getReviews().get(i);
+            values.put(MovieContract.ReviewEntry.COL_API_ID, review.getId());
+            values.put(MovieContract.ReviewEntry.COL_MOVIE_ID, movieId);
+            values.put(MovieContract.ReviewEntry.COL_AUTHOR, review.getAuthor());
+            values.put(MovieContract.ReviewEntry.COL_CONTENT, review.getText());
+            values.put(MovieContract.ReviewEntry.COL_URL, review.getUrl());
+            reviewValues[i] = values;
+        }
+        getContext().getContentResolver().bulkInsert(MovieContract.ReviewEntry.CONTENT_URI, reviewValues);
+        getLoaderManager().restartLoader(DETAILS_REVIEW_LOADER, null, this);
+    }
+
+    @Override
+    public void syncMovieDetails(Movie movie) {
+        long movieId = MovieContract.MovieEntry.getMovieIdFromUri(mVideoUri);
+
+        ContentValues movieValues = new ContentValues();
+        movieValues.put(MovieContract.MovieEntry.COL_UPDATE_DATE, new DateTime().getMillis());
+        getContext().getContentResolver().update(
+            MovieContract.MovieEntry.CONTENT_URI,
+            movieValues,
+            MovieContract.MovieEntry._ID + "=?",
+            new String[]{String.valueOf(movieId)}
+        );
+    }
 }
