@@ -5,18 +5,6 @@
     <item android:state_pressed="true"
           android:drawable="@color/colorSelected" />
 
-    <!-- When the view is "activated".  In SINGLE_CHOICE_MODE, it flags the active item -->
-    <item android:state_activated="true">
-        <shape xmlns:android="http://schemas.android.com/apk/res/android" >
-            <solid
-                android:color="@color/colorSelected"/>
-            <stroke
-                android:width="2dp"
-                android:color="@color/colorAccent" >
-            </stroke>
-        </shape>
-    </item>
-
     <!-- Default, "just hangin' out" state. -->
     <item android:drawable="@android:color/transparent" />
 
