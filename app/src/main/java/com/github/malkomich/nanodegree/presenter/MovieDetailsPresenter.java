@@ -63,7 +63,7 @@ public class MovieDetailsPresenter implements Callback<Movie> {
 
             // Persist review items in DB
             ReviewResults reviewResults = movie.getReviewResults();
-            mView.syncReviewResults(reviewResults, movie.getId());
+            mView.syncReviewResults(reviewResults);
 
             // Update movie date of last sync with API
             mView.syncMovieDetails(movie);

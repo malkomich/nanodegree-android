@@ -20,9 +20,8 @@ public interface MovieDetailsView {
      * Sync review results with local persistence.
      *
      * @param reviewResults Model with the collection of reviews
-     * @param movieId Unique ID of the movie
      */
-    void syncReviewResults(ReviewResults reviewResults, long movieId);
+    void syncReviewResults(ReviewResults reviewResults);
 
     /**
      * Sync movie details with local persistence.

@@ -64,14 +64,8 @@ public class PopularMoviesActivity extends AppCompatActivity implements OnDetail
         MovieDetailsFragment detailsFragment = (MovieDetailsFragment)
             getSupportFragmentManager().findFragmentById(R.id.movie_details_fragment);
 
-        Uri detailsMovieUri = MovieContract.MovieEntry.
-            buildMovieDetailsJoinVideoWithMovieId(cursor.getLong(PopularMoviesFragment.COL_MOVIE_ID));
-        Uri detailsReviewUri = MovieContract.MovieEntry.
-            buildMovieDetailsJoinReviewWithMovieId(cursor.getLong(PopularMoviesFragment.COL_MOVIE_ID));
-
         Bundle args = new Bundle();
-        args.putParcelable(MovieDetailsFragment.DETAILS_VIDEO_URI, detailsMovieUri);
-        args.putParcelable(MovieDetailsFragment.DETAILS_REVIEW_URI, detailsReviewUri);
+        args.putLong(MovieDetailsFragment.MOVIE_ID, cursor.getLong(PopularMoviesFragment.COL_MOVIE_ID));
 
         if (detailsFragment != null) {
             // If article frag is available, we're in two-pane layout...

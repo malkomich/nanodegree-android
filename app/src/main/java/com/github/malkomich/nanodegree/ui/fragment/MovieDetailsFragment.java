@@ -50,8 +50,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
     LoaderManager.LoaderCallbacks<Cursor> {
 
     // URI's argument identifiers, to communicate through Bundles
-    public static final String DETAILS_VIDEO_URI = "video_uri";
-    public static final String DETAILS_REVIEW_URI = "review_uri";
+    public static final String MOVIE_ID = "movie_id";
 
     // Indexes for the projected columns of Movie's table.
     private static final int COL_MOVIE_ID = 0;
@@ -124,8 +123,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
 
     private MovieDetailsPresenter mPresenter;
 
-    private Uri mVideoUri;
-    private Uri mReviewUri;
+    private long mMovieId;
     private VideoAdapter mVideoAdapter;
     private ReviewAdapter mReviewAdapter;
 
@@ -184,7 +182,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
                     MovieContract.MovieEntry.CONTENT_URI,
                     values,
                     MovieContract.MovieEntry._ID + "=?",
-                    new String[]{String.valueOf(MovieContract.MovieEntry.getMovieIdFromUri(mVideoUri))}
+                    new String[]{String.valueOf(mMovieId)}
                 );
             }
         });
@@ -203,16 +201,12 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
 
         Bundle arguments = getArguments();
         if (arguments != null) {
-            mVideoUri = arguments.getParcelable(DETAILS_VIDEO_URI);
-            mReviewUri = arguments.getParcelable(DETAILS_REVIEW_URI);
+            mMovieId = arguments.getLong(MOVIE_ID);
         }
 
         if(savedInstanceState != null) {
-            if(savedInstanceState.containsKey(DETAILS_VIDEO_URI)) {
-                mVideoUri = (Uri) savedInstanceState.get(DETAILS_VIDEO_URI);
-            }
-            if(savedInstanceState.containsKey(DETAILS_REVIEW_URI)) {
-                mReviewUri = (Uri) savedInstanceState.get(DETAILS_REVIEW_URI);
+            if(savedInstanceState.containsKey(MOVIE_ID)) {
+                mMovieId = (long) savedInstanceState.get(MOVIE_ID);
             }
         }
 
@@ -227,8 +221,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
     public void updateMovie(Bundle args) {
         mPresenter.setViewUpdated(false);
 
-        mVideoUri = args.getParcelable(DETAILS_VIDEO_URI);
-        mReviewUri = args.getParcelable(DETAILS_REVIEW_URI);
+        mMovieId = args.getLong(MOVIE_ID);
 
         LoaderManager manager = getLoaderManager();
         if(manager.getLoader(DETAILS_VIDEO_LOADER) == null) {
@@ -250,10 +243,8 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if(mVideoUri != null) {
+        if(mMovieId != 0) {
             getLoaderManager().initLoader(DETAILS_VIDEO_LOADER, null, this);
-        }
-        if(mReviewUri != null) {
             getLoaderManager().initLoader(DETAILS_REVIEW_LOADER, null, this);
         }
     }
@@ -264,8 +255,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(DETAILS_VIDEO_URI, mVideoUri);
-        outState.putParcelable(DETAILS_REVIEW_URI, mReviewUri);
+        outState.putLong(MOVIE_ID, mMovieId);
     }
 
     /* (non-Javadoc)
@@ -273,19 +263,22 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
      */
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Uri uri = null;
         switch (id) {
             case DETAILS_VIDEO_LOADER:
+                uri = MovieContract.MovieEntry.buildMovieDetailsJoinVideoWithMovieId(mMovieId);
                 return new CursorLoader(
                     getContext(),
-                    mVideoUri,
+                    uri,
                     DETAILS_VIDEO_PROJECTION,
                     null,
                     null,
                     null);
             case DETAILS_REVIEW_LOADER:
+                uri = MovieContract.MovieEntry.buildMovieDetailsJoinReviewWithMovieId(mMovieId);
                 return new CursorLoader(
                     getContext(),
-                    mReviewUri,
+                    uri,
                     DETAILS_REVIEW_PROJECTION,
                     null,
                     null,
@@ -364,9 +357,8 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
         popularityView.setText(
             String.valueOf(MathUtils.roundDouble(popularity, 2))
         );
-        rateView.setText(
-            String.valueOf(MathUtils.roundDouble(voteAverage, 2))
-        );
+        double rate = MathUtils.roundDouble(voteAverage, 2);
+        rateView.setText(getString(R.string.rate, rate));
 
         LocalDate date = new LocalDate(dateString);
         dateView.setText(getString(R.string.date,
@@ -398,7 +390,6 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
      */
     @Override
     public void syncVideoResults(VideoResults videoResults) {
-        long movieId = videoResults.getMovieId();
 
         int size = videoResults.getVideos().size();
         ContentValues[] videoValues = new ContentValues[size];
@@ -406,7 +397,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
             ContentValues values = new ContentValues();
             Video video = videoResults.getVideos().get(i);
             values.put(MovieContract.VideoEntry.COL_API_ID, video.getId());
-            values.put(MovieContract.VideoEntry.COL_MOVIE_ID, movieId);
+            values.put(MovieContract.VideoEntry.COL_MOVIE_ID, mMovieId);
             values.put(MovieContract.VideoEntry.COL_KEY, video.getKey());
             values.put(MovieContract.VideoEntry.COL_TYPE, video.getType().getName());
             values.put(MovieContract.VideoEntry.COL_SITE, video.getSite());
@@ -420,7 +411,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
      * @see com.github.malkomich.nanodegree.ui.view.MovieDetailsView#syncReviewResults()
      */
     @Override
-    public void syncReviewResults(ReviewResults reviewResults, long movieId) {
+    public void syncReviewResults(ReviewResults reviewResults) {
 
         int size = reviewResults.getReviews().size();
         ContentValues[] reviewValues = new ContentValues[size];
@@ -428,7 +419,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
             ContentValues values = new ContentValues();
             Review review = reviewResults.getReviews().get(i);
             values.put(MovieContract.ReviewEntry.COL_API_ID, review.getId());
-            values.put(MovieContract.ReviewEntry.COL_MOVIE_ID, movieId);
+            values.put(MovieContract.ReviewEntry.COL_MOVIE_ID, mMovieId);
             values.put(MovieContract.ReviewEntry.COL_AUTHOR, review.getAuthor());
             values.put(MovieContract.ReviewEntry.COL_CONTENT, review.getText());
             values.put(MovieContract.ReviewEntry.COL_URL, review.getUrl());
@@ -443,7 +434,6 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
      */
     @Override
     public void syncMovieDetails(Movie movie) {
-        long movieId = movie.getId();
 
         ContentValues movieValues = new ContentValues();
         movieValues.put(MovieContract.MovieEntry.COL_UPDATE_DATE, new DateTime().getMillis());
@@ -451,7 +441,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
             MovieContract.MovieEntry.CONTENT_URI,
             movieValues,
             MovieContract.MovieEntry._ID + "=?",
-            new String[]{String.valueOf(movieId)}
+            new String[]{String.valueOf(mMovieId)}
         );
     }
 }

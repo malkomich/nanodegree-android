@@ -81,26 +81,28 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAppearance="?android:textAppearanceMedium"
-                            android:drawableLeft="@drawable/ic_star_rate"
-                            android:drawableStart="@drawable/ic_star_rate"
+                            android:drawableLeft="@drawable/ic_hearing"
+                            android:drawableStart="@drawable/ic_hearing"
                             android:gravity="fill|center"
                             android:drawablePadding="@dimen/margin_medium"
                             android:layout_below="@+id/movie_date"
                             android:layout_marginTop="@dimen/margin_large"
-                            android:layout_centerHorizontal="true"/>
+                            android:layout_centerHorizontal="true"
+                            android:contentDescription="@string/desc_hearing_icon"/>
 
                         <TextView
                             android:id="@+id/movie_rate"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAppearance="?android:textAppearanceMedium"
-                            android:drawableLeft="@drawable/ic_hearing"
-                            android:drawableStart="@drawable/ic_hearing"
+                            android:drawableLeft="@drawable/ic_star_rate"
+                            android:drawableStart="@drawable/ic_star_rate"
                             android:gravity="fill"
                             android:drawablePadding="@dimen/margin_medium"
                             android:layout_below="@+id/movie_popularity"
                             android:layout_marginTop="@dimen/margin_medium"
-                            android:layout_centerHorizontal="true"/>
+                            android:layout_centerHorizontal="true"
+                            android:contentDescription="@string/desc_star_icon"/>
 
                     </RelativeLayout>
 
