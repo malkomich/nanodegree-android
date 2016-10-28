@@ -231,7 +231,7 @@ public class PopularMoviesFragment extends Fragment implements PopularMoviesView
         } else {
             refreshSwiper.setRefreshing(false);
 
-            Toast.makeText(getContext(), getString(R.string.connection_error), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.network_error), Toast.LENGTH_SHORT).show();
         }
     }
 

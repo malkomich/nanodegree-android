@@ -23,22 +23,22 @@
     </string>
     <string name="title_fragment_details_view">Movie Details</string>
     <string name="video_site_invalid">
-        Video from <xliff:g id="videoSite">%1$s</xliff:g> cannot be reproduced
+        Video from <xliff:g id="videoSite">%1$s</xliff:g> cannot be reproduced.
     </string>
     <string name="movie_not_selected">Select a movie to see its details</string>
 
     <!-- Error labels -->
-    <string name="network_error">Check your network connection</string>
-    <string name="no_movies_error">Sorry, there are no movies</string>
+    <string name="network_error">Check your network connection.</string>
+    <string name="no_movies_error">Sorry, no movies found</string>
 
     <!-- Image content descriptions -->
     <string name="desc_no_movies_error_image">Network error icon</string>
     <string name="desc_select_image">Select action icon</string>
-    <string name="desc_movie_image">Movie image scalable</string>
-    <string name="desc_star_icon">Star icon</string>
-    <string name="desc_hearing_icon">Hearing icon</string>
+    <string name="desc_movie_image">Movie poster scalable</string>
+    <string name="desc_star_icon">Star icon (Rating)</string>
+    <string name="desc_hearing_icon">Hearing icon (Popularity)</string>
     <string name="desc_favorite_icon">Favorite icon</string>
     <string name="desc_play_icon">Play multimedia icon</string>
-    <string name="desc_popular_movie_image">Popular movies collection item\'s image</string>
+    <string name="desc_popular_movie_image">Popular movies collection item\'s poster</string>
     <string name="menu_sort">Sort order submenu</string>
 </resources>

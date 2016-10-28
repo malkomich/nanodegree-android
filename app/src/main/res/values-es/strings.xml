@@ -1,12 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:xliff="http://schemas.android.com/tools">
     <string name="action_sort_popularity">Ordenar por popularidad</string>
     <string name="action_sort_rated">Ordenar por valoración</string>
     <string name="button_app_1">Películas populares</string>
-    <string name="button_toast">¡Este botón ejecutará la app \"%1$s\"!</string>
-    <string name="date">%1$d de %2$s del %3$d</string>
+    <string name="button_toast">¡Este botón ejecutará la app <xliff:g id="appName">\"%1$s\"</xliff:g>!</string>
+    <string name="date"><xliff:g id="day">%1$d</xliff:g> de <xliff:g id="month">%2$s</xliff:g> del <xliff:g id="year">%3$d</xliff:g></string>
     <string name="menu_title">¡Mis aplicaciones Nanodegree!</string>
-    <string name="movie_trailer_button">Ver trailer</string>
     <string name="title_activity_popular_movies">Películas populares</string>
-    <string name="connection_error">Comprueba tu conexión a internet</string>
+    <string name="action_filter_favorites">Filtrar películas favoritas</string>
+    <string name="desc_favorite_icon">Icono de favorito</string>
+    <string name="desc_hearing_icon">Icono de escucha (Popularidad)</string>
+    <string name="desc_movie_image">Cartel de pelicula escalable</string>
+    <string name="desc_no_movies_error_image">Icono de error de conexión</string>
+    <string name="desc_play_icon">Icono de reproducción multimedia</string>
+    <string name="desc_popular_movie_image">Cartel de película en colección de películas populares</string>
+    <string name="desc_select_image">Icono de acción para selección</string>
+    <string name="desc_star_icon">Icono de estrella (Puntuación)</string>
+    <string name="menu_sort">Submenu de criterios de ordenación</string>
+    <string name="movie_not_selected">Selecciona una película para ver detalles</string>
+    <string name="network_error">Comprueba tu conexión a Internet.</string>
+    <string name="no_movies_error">Lo sentimos, no se encuentran películas</string>
+    <string name="provider_permission_label">Permiso para el proveedor de películas</string>
+    <string name="title_fragment_details_view">Detalles de la película</string>
+    <string name="video_site_invalid">No se pueden reproducir vídeos de <xliff:g id="videoSite">%1$s</xliff:g>.</string>
 </resources>
