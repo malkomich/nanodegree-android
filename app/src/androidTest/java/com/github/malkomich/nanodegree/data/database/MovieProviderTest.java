@@ -10,9 +10,8 @@ import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -27,20 +26,15 @@ public class MovieProviderTest {
 
     private static final String TAG = MovieProviderTest.class.getSimpleName();
 
-    private static Context mContext;
-
-    @BeforeClass
-    public static void init() {
-        mContext = InstrumentationRegistry.getTargetContext();
-    }
-
-    @AfterClass
-    public static void finish() {
-        deleteAllRecords();
-    }
+    private Context mContext;
 
     @Before
     public void setUp() {
+        mContext = InstrumentationRegistry.getTargetContext();
+    }
+
+    @After
+    public void tearDown() {
         deleteAllRecords();
     }
 
@@ -338,7 +332,7 @@ public class MovieProviderTest {
         cursor.close();
     }
 
-    private static void deleteAllRecords() {
+    private void deleteAllRecords() {
 
         mContext.getContentResolver().delete(
             MovieContract.VideoEntry.CONTENT_URI,

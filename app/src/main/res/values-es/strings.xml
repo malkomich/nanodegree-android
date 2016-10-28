@@ -10,7 +10,7 @@
     <string name="action_filter_favorites">Filtrar películas favoritas</string>
     <string name="desc_favorite_icon">Icono de favorito</string>
     <string name="desc_hearing_icon">Icono de escucha (Popularidad)</string>
-    <string name="desc_movie_image">Cartel de pelicula escalable</string>
+    <string name="desc_movie_image">Cartel de película escalable</string>
     <string name="desc_no_movies_error_image">Icono de error de conexión</string>
     <string name="desc_play_icon">Icono de reproducción multimedia</string>
     <string name="desc_popular_movie_image">Cartel de película en colección de películas populares</string>

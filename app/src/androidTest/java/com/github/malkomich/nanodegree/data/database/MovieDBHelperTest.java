@@ -80,6 +80,7 @@ public class MovieDBHelperTest {
         // if this fails, it means that your database doesn't contain all of the required entry columns
         assertTrue("Error: The database doesn't contain all of the required entry columns",
             movieColumnHashSet.isEmpty());
+        cursor.close();
         db.close();
     }
 

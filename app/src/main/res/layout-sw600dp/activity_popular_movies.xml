@@ -1,25 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="horizontal"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:baselineAligned="false">
 
-    <fragment android:id="@+id/popular_movies_fragment"
-              android:name="com.github.malkomich.nanodegree.ui.fragment.PopularMoviesFragment"
-              xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_weight="1"
-              android:layout_width="0dp"
-              android:layout_height="match_parent"
-              tools:layout="@layout/fragment_popular_movies"/>
+    <fragment
+        android:id="@+id/popular_movies_fragment"
+        android:name="com.github.malkomich.nanodegree.ui.fragment.PopularMoviesFragment"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        tools:layout="@layout/fragment_popular_movies"/>
 
-    <fragment android:id="@+id/movie_details_fragment"
-              android:name="com.github.malkomich.nanodegree.ui.fragment.MovieDetailsFragment"
-              xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_weight="1"
-              android:layout_width="0dp"
-              android:layout_height="match_parent"
-              tools:layout="@layout/fragment_movie_details"/>
+    <fragment
+        android:id="@+id/movie_details_fragment"
+        android:name="com.github.malkomich.nanodegree.ui.fragment.MovieDetailsFragment"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        tools:layout="@layout/fragment_movie_details"/>
 
 </LinearLayout>
