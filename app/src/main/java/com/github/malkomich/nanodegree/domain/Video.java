@@ -74,11 +74,17 @@ public class Video implements Parcelable {
         return site;
     }
 
+    /* (non-Javadoc)
+     * @see android.os.Parcelable#describeContents()
+     */
     @Override
     public int describeContents() {
         return 0;
     }
 
+    /* (non-Javadoc)
+     * @see android.os.Parcelable#writeToParcel()
+     */
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(key);
@@ -86,6 +92,9 @@ public class Video implements Parcelable {
         dest.writeString(site);
     }
 
+    /**
+     * Enumeration of all video types allowed.
+     */
     public enum VideoType {
         TRAILER("Trailer"),
         TEASER("Teaser"),

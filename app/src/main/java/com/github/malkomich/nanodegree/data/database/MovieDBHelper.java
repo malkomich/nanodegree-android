@@ -21,6 +21,9 @@ public class MovieDBHelper extends SQLiteOpenHelper {
         super(context, DB_NAME, null, DB_VERSION);
     }
 
+    /* (non-Javadoc)
+     * @see android.database.sqlite.SQLiteOpenHelper#onCreate()
+     */
     @Override
     public void onCreate(SQLiteDatabase db) {
 
@@ -70,6 +73,9 @@ public class MovieDBHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_REVIEW_TABLE);
     }
 
+    /* (non-Javadoc)
+     * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade()
+     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 

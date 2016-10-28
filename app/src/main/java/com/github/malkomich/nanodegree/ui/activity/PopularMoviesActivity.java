@@ -20,6 +20,9 @@ public class PopularMoviesActivity extends AppCompatActivity implements OnDetail
 
     private static final String TAG = PopularMoviesActivity.class.getName();
 
+    /* (non-Javadoc)
+     * @see android.support.v7.app.AppCompatActivity#onCreate()
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +55,9 @@ public class PopularMoviesActivity extends AppCompatActivity implements OnDetail
         getSupportFragmentManager().addOnBackStackChangedListener(this);
     }
 
+    /* (non-Javadoc)
+     * @see com.github.malkomich.nanodegree.callback.OnDetailItemSelectedListener#onItemSelected()
+     */
     @Override
     public void onItemSelected(Cursor cursor) {
 
@@ -83,6 +89,9 @@ public class PopularMoviesActivity extends AppCompatActivity implements OnDetail
         }
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v4.app.FragmentManager.OnBackStackChangedListener#onBackStackChanged()
+     */
     @Override
     public void onBackStackChanged() {
         // Enable Up button if there are entries in the back stack.
@@ -91,6 +100,9 @@ public class PopularMoviesActivity extends AppCompatActivity implements OnDetail
         getSupportActionBar().setDisplayUseLogoEnabled(!enableUp);
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v7.app.AppCompatActivity#onSupportNavigateUp()
+     */
     @Override
     public boolean onSupportNavigateUp() {
         // Called when the up button is pressed.

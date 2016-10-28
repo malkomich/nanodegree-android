@@ -49,11 +49,17 @@ public class VideoResults implements Parcelable {
         return videos;
     }
 
+    /* (non-Javadoc)
+     * @see android.os.Parcelable#describeContents()
+     */
     @Override
     public int describeContents() {
         return 0;
     }
 
+    /* (non-Javadoc)
+     * @see android.os.Parcelable#writeToParcel()
+     */
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(movieId);

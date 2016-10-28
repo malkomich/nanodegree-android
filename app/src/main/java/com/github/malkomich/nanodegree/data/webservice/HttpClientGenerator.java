@@ -5,7 +5,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
- * Created by malkomich on 14/10/2016.
+ * Factory class to get Retrofit instances.
  */
 public class HttpClientGenerator {
 

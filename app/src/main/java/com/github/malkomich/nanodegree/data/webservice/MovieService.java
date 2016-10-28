@@ -24,25 +24,62 @@ public interface MovieService {
     String PAGE_PARAM = "page";
     String APPEND_PARAM = "append_to_response";
 
+    /**
+     * Get popular movies from API.
+     *
+     * @param apiKey web service API key
+     * @param language language preferred of the response
+     * @param page number of page requested
+     * @return A Retrofit call to get the data
+     */
     @GET(RES_POPULAR)
     Call<MovieResults> getPopularMovies(
         @Query(API_KEY_PARAM) String apiKey,
         @Query(LANG_PARAM) String language,
         @Query(PAGE_PARAM) int page);
 
+    /**
+     * Get the first page of popular movies from API.
+     *
+     * @param apiKey web service API key
+     * @param language language preferred of the response
+     * @return A Retrofit call to get the data
+     */
     @GET(RES_POPULAR)
     Call<MovieResults> getPopularMovies(
         @Query(API_KEY_PARAM) String apiKey,
         @Query(LANG_PARAM) String language);
 
+    /**
+     * Get a specific page of popular movies from API, given in the default language(en).
+     *
+     * @param apiKey web service API key
+     * @param page number of page requested
+     * @return A Retrofit call to get the data
+     */
     @GET(RES_POPULAR)
     Call<MovieResults> getPopularMovies(
         @Query(API_KEY_PARAM) String apiKey,
         @Query(PAGE_PARAM) int page);
 
+    /**
+     * Get the first page of popular movies from API, given in the default language(en).
+     *
+     * @param apiKey web service API key
+     * @return A Retrofit call to get the data
+     */
     @GET(RES_POPULAR)
     Call<MovieResults> getPopularMovies(@Query(API_KEY_PARAM) String apiKey);
 
+    /**
+     * Get movie details from API.
+     *
+     * @param movieId unique ID of the movie to look for
+     * @param apiKey web service API key
+     * @param language language preferred of the response
+     * @param appendResources optional resources to append to the response
+     * @return A Retrofit call to get the data
+     */
     @GET(RES_MOVIE_DETAILS)
     Call<Movie> getMovieDetails(
         @Path("movie_id") int movieId,
@@ -50,6 +87,14 @@ public interface MovieService {
         @Query(LANG_PARAM) String language,
         @Query(APPEND_PARAM) String appendResources);
 
+    /**
+     * Get movie details from API, given in the default language(en).
+     *
+     * @param movieId unique ID of the movie to look for
+     * @param apiKey web service API key
+     * @param appendResources optional resources to append to the response
+     * @return A Retrofit call to get the data
+     */
     @GET(RES_MOVIE_DETAILS)
     Call<Movie> getMovieDetails(
         @Path("movie_id") long movieId,

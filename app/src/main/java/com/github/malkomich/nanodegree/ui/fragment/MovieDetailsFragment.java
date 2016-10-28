@@ -44,15 +44,16 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
- * Movie details view.
+ * Movie details view implementation.
  */
 public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
     LoaderManager.LoaderCallbacks<Cursor> {
 
+    // URI's argument identifiers, to communicate through Bundles
     public static final String DETAILS_VIDEO_URI = "video_uri";
     public static final String DETAILS_REVIEW_URI = "review_uri";
 
-    // Index for the projected columns of Movie's table.
+    // Indexes for the projected columns of Movie's table.
     private static final int COL_MOVIE_ID = 0;
     private static final int COL_MOVIE_API_ID = 1;
     private static final int COL_MOVIE_TITLE = 2;
@@ -76,10 +77,6 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
     public static final int COL_REVIEW_AUTHOR = 13;
     public static final int COL_REVIEW_CONTENT = 14;
     public static final int COL_REVIEW_URL = 15;
-
-    private static final String TAG = MovieDetailsFragment.class.getName();
-    private static final int DETAILS_VIDEO_LOADER = 1;
-    private static final int DETAILS_REVIEW_LOADER = 2;
 
     // Projections for Movie's query.
     private static final String[] DETAILS_VIDEO_PROJECTION = {
@@ -119,13 +116,22 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
         MovieContract.ReviewEntry.COL_URL
     };
 
+    private static final String TAG = MovieDetailsFragment.class.getName();
+
+    // Loaders identifiers
+    private static final int DETAILS_VIDEO_LOADER = 1;
+    private static final int DETAILS_REVIEW_LOADER = 2;
+
     private MovieDetailsPresenter mPresenter;
+
     private Uri mVideoUri;
     private Uri mReviewUri;
-    private VideoAdapter videoAdapter;
-    private ReviewAdapter reviewAdapter;
-    private boolean favorite;
+    private VideoAdapter mVideoAdapter;
+    private ReviewAdapter mReviewAdapter;
 
+    private boolean mFavorite;
+
+    // UI Views
     @BindView(R.id.details_layout) protected LinearLayout detailsView;
     @BindView(R.id.empty_view_layout) protected RelativeLayout emptyView;
     @BindView(R.id.movie_title) protected TextView titleView;
@@ -138,18 +144,27 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
     @BindView(R.id.trailer_list) protected RecyclerView trailerList;
     @BindView(R.id.review_list) protected RecyclerView reviewList;
 
+    /* (non-Javadoc)
+     * @see android.support.v4.app.Fragment#onCreate()
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPresenter = new MovieDetailsPresenter(this);
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v4.app.Fragment#onResume()
+     */
     @Override
     public void onResume() {
         super.onResume();
         getActivity().setTitle(getString(R.string.title_fragment_details_view));
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v4.app.Fragment#onCreateView()
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -164,7 +179,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
 
                 ((ImageView) v).getDrawable();
                 ContentValues values = new ContentValues();
-                values.put(MovieContract.MovieEntry.COL_FAVORITE, !favorite);
+                values.put(MovieContract.MovieEntry.COL_FAVORITE, !mFavorite);
                 getContext().getContentResolver().update(
                     MovieContract.MovieEntry.CONTENT_URI,
                     values,
@@ -174,16 +189,16 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
             }
         });
 
-        videoAdapter = new VideoAdapter(getContext());
+        mVideoAdapter = new VideoAdapter(getContext());
         trailerList.setLayoutManager(new LinearLayoutManager(getContext()));
-        trailerList.setAdapter(videoAdapter);
+        trailerList.setAdapter(mVideoAdapter);
         Drawable horizontalDivider = ContextCompat.getDrawable(getContext(), R.drawable.divider);
         trailerList.addItemDecoration(new DividerItemDecoration(horizontalDivider));
         trailerList.setNestedScrollingEnabled(false);
 
-        reviewAdapter = new ReviewAdapter(getContext());
+        mReviewAdapter = new ReviewAdapter(getContext());
         reviewList.setLayoutManager(new LinearLayoutManager(getContext()));
-        reviewList.setAdapter(reviewAdapter);
+        reviewList.setAdapter(mReviewAdapter);
         reviewList.setNestedScrollingEnabled(false);
 
         Bundle arguments = getArguments();
@@ -204,6 +219,11 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
         return view;
     }
 
+    /**
+     * Updates the movie item, which details will be shown, from a movie collection.
+     *
+     * @param args Arguments with the required Uris to request the movie details data
+     */
     public void updateMovie(Bundle args) {
         mPresenter.setViewUpdated(false);
 
@@ -224,6 +244,9 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
         }
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v4.app.Fragment#onActivityCreated()
+     */
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -235,6 +258,9 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
         }
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v4.app.Fragment#onSaveInstanceState()
+     */
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -242,6 +268,9 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
         outState.putParcelable(DETAILS_REVIEW_URI, mReviewUri);
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader()
+     */
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id) {
@@ -266,15 +295,18 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
         }
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished()
+     */
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         Log.d(TAG, "onLoadFinished");
         switch (loader.getId()) {
             case DETAILS_VIDEO_LOADER:
-                videoAdapter.swapCursor(data);
+                mVideoAdapter.swapCursor(data);
                 break;
             case DETAILS_REVIEW_LOADER:
-                reviewAdapter.swapCursor(data);
+                mReviewAdapter.swapCursor(data);
                 break;
             default:
                 break;
@@ -286,11 +318,14 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
         }
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset()
+     */
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         Log.d(TAG, "onLoaderReset");
-        videoAdapter.swapCursor(null);
-        reviewAdapter.swapCursor(null);
+        mVideoAdapter.swapCursor(null);
+        mReviewAdapter.swapCursor(null);
     }
 
     /**
@@ -313,7 +348,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
         }
 
         String title = data.getString(COL_MOVIE_TITLE);
-        favorite = data.getInt(COL_MOVIE_FAVORITE) > 0;
+        mFavorite = data.getInt(COL_MOVIE_FAVORITE) > 0;
         String posterPath = data.getString(COL_MOVIE_POSTER_PATH);
         String description = data.getString(COL_MOVIE_DESCRIPTION);
         String dateString = data.getString(COL_MOVIE_DATE);
@@ -321,7 +356,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
         double voteAverage = data.getDouble(COL_MOVIE_VOTE_AVERAGE);
 
         titleView.setText(title);
-        Drawable favDrawable = favorite ? ContextCompat.getDrawable(getContext(), R.drawable.ic_favorite) :
+        Drawable favDrawable = mFavorite ? ContextCompat.getDrawable(getContext(), R.drawable.ic_favorite) :
             ContextCompat.getDrawable(getContext(), R.drawable.ic_favorite_border);
         favoriteIcon.setImageDrawable(favDrawable);
         Picasso.with(getContext()).load(posterPath).into(imageView);
@@ -358,6 +393,9 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
         emptyView.setVisibility(emptyViewVisibility);
     }
 
+    /* (non-Javadoc)
+     * @see com.github.malkomich.nanodegree.ui.view.MovieDetailsView#syncVideoResults()
+     */
     @Override
     public void syncVideoResults(VideoResults videoResults) {
         long movieId = videoResults.getMovieId();
@@ -378,6 +416,9 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
         getLoaderManager().restartLoader(DETAILS_VIDEO_LOADER, null, this);
     }
 
+    /* (non-Javadoc)
+     * @see com.github.malkomich.nanodegree.ui.view.MovieDetailsView#syncReviewResults()
+     */
     @Override
     public void syncReviewResults(ReviewResults reviewResults, long movieId) {
 
@@ -397,6 +438,9 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
         getLoaderManager().restartLoader(DETAILS_REVIEW_LOADER, null, this);
     }
 
+    /* (non-Javadoc)
+     * @see com.github.malkomich.nanodegree.ui.view.MovieDetailsView#syncMovieDetails()
+     */
     @Override
     public void syncMovieDetails(Movie movie) {
         long movieId = movie.getId();

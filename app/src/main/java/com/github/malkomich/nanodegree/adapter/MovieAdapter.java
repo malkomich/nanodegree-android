@@ -21,6 +21,9 @@ public class MovieAdapter extends CursorAdapter {
         super(context, c, flags);
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v4.widget.CursorAdapter#newView()
+     */
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         View view = LayoutInflater.from(context).inflate(R.layout.popular_movie_item, parent, false);
@@ -29,6 +32,9 @@ public class MovieAdapter extends CursorAdapter {
         return view;
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v4.widget.CursorAdapter#bindView()
+     */
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
 
@@ -45,7 +51,10 @@ public class MovieAdapter extends CursorAdapter {
             .into(viewHolder.imageView);
     }
 
-    public static class ViewHolder {
+    /**
+     * Encapsulates the view elements for each item in the adapter.
+     */
+    public class ViewHolder {
         public final ImageView imageView;
 
         public ViewHolder(View view) {

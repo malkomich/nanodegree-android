@@ -25,6 +25,9 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
         mContext = context;
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v7.widget.RecyclerView.Adapter#onCreateViewHolder()
+     */
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
@@ -33,6 +36,9 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
         return new ViewHolder(view);
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v7.widget.RecyclerView.Adapter#onBindViewHolder()
+     */
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
@@ -41,11 +47,19 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
         holder.contentView.setText(cursor.getString(MovieDetailsFragment.COL_REVIEW_CONTENT));
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v7.widget.RecyclerView.Adapter#getItemCount()
+     */
     @Override
     public int getItemCount() {
         return cursor != null ? cursor.getCount() : 0;
     }
 
+    /**
+     * Update adapter data with a new Cursor
+     *
+     * @param newCursor Data from DB query
+     */
     public void swapCursor(Cursor newCursor) {
         if (newCursor != null) {
             cursor = newCursor;
@@ -53,6 +67,9 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
         }
     }
 
+    /**
+     * Encapsulates the view elements for each item in the adapter.
+     */
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public final TextView authorView;
@@ -65,6 +82,9 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
             view.setOnClickListener(this);
         }
 
+        /* (non-Javadoc)
+         * @see android.view.View.OnClickListener#onClick()
+         */
         @Override
         public void onClick(View view) {
             int position = getAdapterPosition();

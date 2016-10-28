@@ -26,6 +26,9 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
         mContext = context;
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v7.widget.RecyclerView.Adapter#onCreateViewHolder()
+     */
     @Override
     public VideoAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
@@ -34,6 +37,9 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
         return new ViewHolder(view);
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v7.widget.RecyclerView.Adapter#onBindViewHolder()
+     */
     @Override
     public void onBindViewHolder(VideoAdapter.ViewHolder holder, int position) {
 
@@ -41,6 +47,9 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
         holder.textView.setText(cursor.getString(MovieDetailsFragment.COL_VIDEO_TYPE));
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v7.widget.RecyclerView.Adapter#getItemCount()
+     */
     @Override
     public int getItemCount() {
         return cursor != null ? cursor.getCount() : 0;
@@ -53,6 +62,9 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
         }
     }
 
+    /**
+     * Encapsulates the view elements for each item in the adapter.
+     */
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public final TextView textView;
@@ -63,6 +75,9 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
             view.setOnClickListener(this);
         }
 
+        /* (non-Javadoc)
+         * @see android.view.View.OnClickListener#onClick()
+         */
         @Override
         public void onClick(View view) {
             int position = getAdapterPosition();

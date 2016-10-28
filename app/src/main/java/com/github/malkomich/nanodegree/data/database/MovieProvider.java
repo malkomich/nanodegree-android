@@ -28,12 +28,18 @@ public class MovieProvider extends ContentProvider {
         MovieContract.MovieEntry.TABLE_NAME+
             "." + MovieContract.MovieEntry._ID + " = ? ";
 
+    /* (non-Javadoc)
+     * @see android.content.ContentProvider#onCreate()
+     */
     @Override
     public boolean onCreate() {
         mOpenHelper = new MovieDBHelper(getContext());
         return true;
     }
 
+    /* (non-Javadoc)
+     * @see android.content.ContentProvider#getType()
+     */
     @Override
     public String getType(@NonNull Uri uri) {
 
@@ -53,6 +59,9 @@ public class MovieProvider extends ContentProvider {
         }
     }
 
+    /* (non-Javadoc)
+     * @see android.content.ContentProvider#query()
+     */
     @Override
     public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 
@@ -101,6 +110,9 @@ public class MovieProvider extends ContentProvider {
         return responseCursor;
     }
 
+    /* (non-Javadoc)
+     * @see android.content.ContentProvider#insert()
+     */
     @Override
     public Uri insert(@NonNull Uri uri, ContentValues values) {
 
@@ -145,6 +157,9 @@ public class MovieProvider extends ContentProvider {
         return responseUri;
     }
 
+    /* (non-Javadoc)
+     * @see android.content.ContentProvider#update()
+     */
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 
@@ -175,6 +190,9 @@ public class MovieProvider extends ContentProvider {
         return rowsUpdated;
     }
 
+    /* (non-Javadoc)
+     * @see android.content.ContentProvider#delete()
+     */
     @Override
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
 
@@ -205,6 +223,9 @@ public class MovieProvider extends ContentProvider {
         return rowsDeleted;
     }
 
+    /* (non-Javadoc)
+     * @see android.content.ContentProvider#bulkInsert()
+     */
     @Override
     public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -266,6 +287,12 @@ public class MovieProvider extends ContentProvider {
         return rowsInserted;
     }
 
+    /**
+     * Builds the responsible of matching a given Uri with a specific category. It allows to make the right
+     * ContentProvider operations depending the resource requested.
+     *
+     * @return Uri matcher
+     */
     private static UriMatcher buildUriMatcher() {
         // All paths added to the UriMatcher have a corresponding code to return when a match is
         // found.  The code passed into the constructor represents the code to return for the root
@@ -281,6 +308,14 @@ public class MovieProvider extends ContentProvider {
         return matcher;
     }
 
+    /**
+     * Makes a JOIN query of the data of a specific movie and the requested resources attached to that movie.
+     *
+     * @param uri Uri which localize the requested resources in the provider
+     * @param projection Field values to retrieve
+     * @param sortOrder Sort criteria
+     * @return Data from DB
+     */
     private Cursor getMovieDetailsByMovieId(Uri uri, String[] projection, String sortOrder) {
         long movieId = MovieContract.MovieEntry.getMovieIdFromUri(uri);
 

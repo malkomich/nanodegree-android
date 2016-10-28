@@ -16,9 +16,11 @@ import retrofit2.Response;
  */
 public class MovieDetailsPresenter implements Callback<Movie> {
 
+    // Required resources, for the movie details view, to retrieve from API
     private static final String APPENDED_RESOURCES = "videos,reviews";
 
     private final MovieDetailsView mView;
+
     private boolean mUpdated;
 
     public MovieDetailsPresenter(MovieDetailsView view) {
@@ -27,6 +29,12 @@ public class MovieDetailsPresenter implements Callback<Movie> {
     }
 
 
+    /**
+     * Request movie details data from API
+     *
+     * @param apiKey web service API key
+     * @param movieId unique ID of the movie to look for
+     */
     public void requestMovieDetails(String apiKey, long movieId) {
 
         // HTTP Client initialization
@@ -40,6 +48,9 @@ public class MovieDetailsPresenter implements Callback<Movie> {
         mUpdated = true;
     }
 
+    /* (non-Javadoc)
+     * @see retrofit2.Callback#onResponse()
+     */
     @Override
     public void onResponse(Call<Movie> call, Response<Movie> response) {
 
@@ -59,6 +70,9 @@ public class MovieDetailsPresenter implements Callback<Movie> {
         }
     }
 
+    /* (non-Javadoc)
+     * @see retrofit2.Callback#onFailure()
+     */
     @Override
     public void onFailure(Call<Movie> call, Throwable t) {
     }
@@ -67,6 +81,11 @@ public class MovieDetailsPresenter implements Callback<Movie> {
         mUpdated = viewUpdated;
     }
 
+    /**
+     * Checks if the details view has been recently updated, to avoid useless UI updates.
+     *
+     * @return boolean
+     */
     public boolean isViewUpdated() {
         return mUpdated;
     }

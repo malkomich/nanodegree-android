@@ -13,12 +13,20 @@ import com.github.malkomich.nanodegree.R;
  */
 public class MainActivity extends AppCompatActivity {
 
+    /* (non-Javadoc)
+     * @see android.support.v7.app.AppCompatActivity#onCreate()
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
 
+    /**
+     * Click listener for menu buttons.
+     *
+     * @param view Button View
+     */
     public void onButtonClick(View view) {
         String appName = null;
 

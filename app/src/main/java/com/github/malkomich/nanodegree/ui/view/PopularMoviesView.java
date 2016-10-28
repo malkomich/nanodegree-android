@@ -7,5 +7,10 @@ import com.github.malkomich.nanodegree.domain.MovieResults;
  */
 public interface PopularMoviesView {
 
-    void syncMovieResults(MovieResults results);
+    /**
+     * Sync movie results with local persistence.
+     *
+     * @param movieResults Model with the collection of movies
+     */
+    void syncMovieResults(MovieResults movieResults);
 }

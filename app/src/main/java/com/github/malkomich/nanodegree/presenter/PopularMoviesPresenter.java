@@ -20,6 +20,11 @@ public class PopularMoviesPresenter implements Callback<MovieResults> {
         mView = view;
     }
 
+    /**
+     * Request current popular movies from API
+     *
+     * @param apiKey web service API key
+     */
     public void requestPopularMovies(String apiKey) {
 
         // HTTP Client initialization
@@ -31,6 +36,9 @@ public class PopularMoviesPresenter implements Callback<MovieResults> {
         service.getPopularMovies(apiKey).enqueue(this);
     }
 
+    /* (non-Javadoc)
+     * @see retrofit2.Callback#onResponse()
+     */
     @Override
     public void onResponse(Call<MovieResults> call, Response<MovieResults> response) {
 
@@ -40,6 +48,9 @@ public class PopularMoviesPresenter implements Callback<MovieResults> {
         }
     }
 
+    /* (non-Javadoc)
+     * @see retrofit2.Callback#onFailure()
+     */
     @Override
     public void onFailure(Call<MovieResults> call, Throwable t) {
         t.printStackTrace();

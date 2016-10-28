@@ -68,6 +68,9 @@ public class ReviewResults implements Parcelable {
         return totalReviews;
     }
 
+    /* (non-Javadoc)
+     * @see android.os.Parcelable#writeToParcel()
+     */
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(page);
@@ -76,6 +79,9 @@ public class ReviewResults implements Parcelable {
         dest.writeInt(totalReviews);
     }
 
+    /* (non-Javadoc)
+     * @see android.os.Parcelable#describeContents()
+     */
     @Override
     public int describeContents() {
         return 0;

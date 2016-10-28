@@ -71,23 +71,34 @@ public class PopularMoviesFragment extends Fragment implements PopularMoviesView
     };
 
     private static final String TAG = PopularMoviesFragment.class.getName();
+
+    // Loader identifier
     private static final int MOVIE_LOADER = 0;
+
+    // Preference keys
     private static final String PREFS_NAME = "PopularMoviesPrefs";
     private static final String PREFS_ORDER = "order";
     private static final String PREFS_FAVORITE = "favorites";
-    private static final String SELECTED_KEY = "selected_position";
+
+    // Item position in the grid view for the auto scroll
+    private static final String SELECTED_KEY = "selected_position"; // Argument key
+    private int mPosition = GridView.INVALID_POSITION; // value
 
     private PopularMoviesPresenter mPresenter;
-    private MovieAdapter adapter;
     private OnDetailItemSelectedListener onMovieSelectedListener;
-    // Item position in the grid view for the auto scroll
-    private int mPosition = GridView.INVALID_POSITION;
+
+    private MovieAdapter mAdapter;
+
     private boolean mUpdated = false;
 
+    // UI Views
     @BindView(R.id.refreshSwiper) protected SwipeRefreshLayout refreshSwiper;
     @BindView(R.id.grid_view) protected GridView gridView;
     @BindView(R.id.empty_view_layout) protected RelativeLayout emptyView;
 
+    /* (non-Javadoc)
+     * @see android.support.v4.app.Fragment#onCreate()
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,12 +106,18 @@ public class PopularMoviesFragment extends Fragment implements PopularMoviesView
         mPresenter = new PopularMoviesPresenter(this);
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v4.app.Fragment#onResume()
+     */
     @Override
     public void onResume() {
         super.onResume();
         getActivity().setTitle(getString(R.string.title_activity_popular_movies));
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v4.app.Fragment#onCreateView()
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -114,9 +131,9 @@ public class PopularMoviesFragment extends Fragment implements PopularMoviesView
             }
         });
 
-        adapter = new MovieAdapter(getContext(), null, 0);
+        mAdapter = new MovieAdapter(getContext(), null, 0);
 
-        gridView.setAdapter(adapter);
+        gridView.setAdapter(mAdapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView parent, View view, int position, long id) {
@@ -144,18 +161,27 @@ public class PopularMoviesFragment extends Fragment implements PopularMoviesView
         return view;
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v4.app.Fragment#onActivityCreated()
+     */
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getLoaderManager().initLoader(MOVIE_LOADER, savedInstanceState, this);
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v4.app.Fragment#onCreateOptionsMenu()
+     */
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_popular_movies, menu);
         super.onCreateOptionsMenu(menu,inflater);
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v4.app.Fragment#onSaveInstanceState()
+     */
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if(mPosition != GridView.INVALID_POSITION) {
@@ -164,12 +190,18 @@ public class PopularMoviesFragment extends Fragment implements PopularMoviesView
         super.onSaveInstanceState(outState);
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v4.app.Fragment#onDestroy()
+     */
     @Override
     public void onDestroy() {
         super.onDestroy();
         Picasso.with(getContext()).cancelTag(this);
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v4.app.Fragment#onOptionsItemSelected()
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -279,6 +311,9 @@ public class PopularMoviesFragment extends Fragment implements PopularMoviesView
         getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader()
+     */
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.d(TAG, "onCreateLoader");
@@ -304,14 +339,17 @@ public class PopularMoviesFragment extends Fragment implements PopularMoviesView
         );
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished()
+     */
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         Log.d(TAG, "onLoadFinished");
-        adapter.swapCursor(data);
+        mAdapter.swapCursor(data);
 
-        showGridView(!adapter.isEmpty());
+        showGridView(!mAdapter.isEmpty());
 
-        if(adapter.isEmpty() && !mUpdated) {
+        if(mAdapter.isEmpty() && !mUpdated) {
             refreshData();
         }
         mUpdated = true;
@@ -321,12 +359,18 @@ public class PopularMoviesFragment extends Fragment implements PopularMoviesView
         }
     }
 
+    /* (non-Javadoc)
+     * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset()
+     */
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         Log.d(TAG, "onLoaderReset");
-        adapter.swapCursor(null);
+        mAdapter.swapCursor(null);
     }
 
+    /* (non-Javadoc)
+     * @see com.github.malkomich.nanodegree.ui.view.PopularMoviesView#syncMovieResults()
+     */
     @Override
     public void syncMovieResults(MovieResults results) {
 
