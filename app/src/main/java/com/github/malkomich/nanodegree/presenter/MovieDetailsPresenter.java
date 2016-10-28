@@ -24,6 +24,7 @@ public class MovieDetailsPresenter implements Callback<Movie> {
 
     public MovieDetailsPresenter(MovieDetailsView view) {
         mView = view;
+        mUpdated = false;
     }
 
 
@@ -63,4 +64,11 @@ public class MovieDetailsPresenter implements Callback<Movie> {
     public void onFailure(Call<Movie> call, Throwable t) {
     }
 
+    public void setViewUpdated(boolean viewUpdated) {
+        mUpdated = viewUpdated;
+    }
+
+    public boolean isViewUpdated() {
+        return mUpdated;
+    }
 }

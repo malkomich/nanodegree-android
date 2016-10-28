@@ -124,7 +124,6 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
     private Uri mReviewUri;
     private VideoAdapter videoAdapter;
     private ReviewAdapter reviewAdapter;
-    private boolean isUpdated;
     private boolean favorite;
 
     @BindView(R.id.details_layout) protected LinearLayout detailsView;
@@ -143,7 +142,6 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPresenter = new MovieDetailsPresenter(this);
-        isUpdated = false;
     }
 
     @Override
@@ -162,7 +160,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
             @Override
             public void onClick(View v) {
                 // Force to update UI in next Loader sync
-                isUpdated = false;
+                mPresenter.setViewUpdated(false);
 
                 ((ImageView) v).getDrawable();
                 ContentValues values = new ContentValues();
@@ -207,7 +205,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
     }
 
     public void updateMovie(Bundle args) {
-        isUpdated = false;
+        mPresenter.setViewUpdated(false);
 
         mVideoUri = args.getParcelable(DETAILS_VIDEO_URI);
         mReviewUri = args.getParcelable(DETAILS_REVIEW_URI);
@@ -282,7 +280,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView,
                 break;
         }
 
-        if(data != null && !isUpdated) {
+        if(data != null && !mPresenter.isViewUpdated()) {
             updateUI(data);
             showDetailsView(true);
         }
